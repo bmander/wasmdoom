@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#141513">
+  <title>DOOM / Browser edition</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23141513'/%3E%3Cpath d='M8 6h10l6 6v8l-6 6H8zm6 5v10h3l2-3v-4l-2-3z' fill='%23e3a65b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main>
+    <header><a class="brand" href="./">DOOM<span> / BROWSER EDITION</span></a><span class="edition">EST. 1993 <span class="dot">●</span> STILL RUNNING</span></header>
+    <section class="intro"><div><p class="eyebrow">KNEE-DEEP IN THE DEAD</p><h1>Back to hell.</h1><p>The original DOOM. Right here in your browser.</p></div><div class="stamp">C / WEBASSEMBLY<br><span>NO INSTALL REQUIRED</span></div></section>
+    <section class="machine" aria-label="DOOM game">
+      <div class="machine-bar"><span><i id="status-light"></i> <span id="status" role="status">READY TO PLAY</span></span><span id="wad-name">DOOM SHAREWARE</span></div>
+      <div class="viewport" id="viewport">
+        <canvas id="game" width="640" height="400" tabindex="0" aria-label="DOOM game. Click to capture the mouse. Move the mouse to turn, left click to fire, right click to use. Escape releases the mouse. F2 saves and F3 loads."></canvas>
+        <div id="overlay" class="overlay">
+          <div class="start-card"><p class="eyebrow" id="overlay-caption">EPISODE 01 / SHAREWARE</p><div class="doom-word" aria-hidden="true">DOOM</div><p id="overlay-description">You know what to do.</p><button class="primary" id="play">PLAY DOOM <span>↗</span></button><p class="small" id="overlay-hint">Keyboard required · Sound effects enabled</p></div>
+        </div>
+      </div>
+      <div class="toolbar"><span id="session-label">1993. MEET YOUR BROWSER.</span><div><button id="save" disabled>Save</button><button id="load" disabled>Load</button><button id="pause" disabled>Ⅱ Pause</button><button id="sound" aria-pressed="false" disabled>Sound on</button><button id="fullscreen">⛶ Fullscreen</button></div></div>
+    </section>
+    <div class="game-options">
+      <div><p id="mouse-hint" class="small">Click the game to capture your mouse. Esc releases it and pauses.</p><label class="sensitivity" for="sensitivity">Mouse sensitivity <input id="sensitivity" type="range" min="1" max="10" value="4"><output id="sensitivity-value" for="sensitivity">4</output></label><label class="resolution" for="resolution">Resolution <select id="resolution"><option value="1">Classic · 320 × 200</option><option value="2" selected>Sharp · 640 × 400</option><option value="4">High · 1280 × 800</option></select></label><p id="resolution-state" class="small" role="status">Native 3D rendering · Original proportions</p></div>
+      <div class="save-info"><p class="small" id="save-state" role="status">Save with F2 · Load with F3</p><button id="retry-save" hidden>Retry save</button><p class="small">Save slots stay in this browser, separately for each WAD.</p></div>
+    </div>
+    <section class="adversaries" aria-label="Gameplay mods"><div><p class="eyebrow">OPTIONAL MOD / THEY LEARNED.</p><label class="mod-toggle"><input type="checkbox" id="worthy" aria-describedby="worthy-description"><span>Worthy adversaries</span></label><p id="worthy-description">Enemies spread out, fight for distance, dodge sustained fire, and lead their shots. Same monsters. Better decisions.</p></div><div class="mod-note"><span id="worthy-state" role="status">CLASSIC ENEMY AI</span><p>Sight and sound still matter.<br>Toggle anytime. Your choice is remembered.</p></div></section>
+    <section class="below"><div class="controls"><h2>FIELD MANUAL <span>01—06</span></h2><dl><div><dt><kbd>W</kbd><kbd>S</kbd> / <kbd>↑</kbd><kbd>↓</kbd></dt><dd>Move</dd></div><div><dt><kbd>←</kbd><kbd>→</kbd></dt><dd>Turn / mouse</dd></div><div><dt><kbd>A</kbd><kbd>D</kbd></dt><dd>Strafe</dd></div><div><dt><kbd>Ctrl</kbd> / <kbd>F</kbd></dt><dd>Fire / left click</dd></div><div><dt><kbd>Space</kbd> / <kbd>E</kbd></dt><dd>Use / right click</dd></div><div><dt><kbd>Shift</kbd></dt><dd>Run</dd></div></dl><p class="small"><kbd>Enter</kbd> Select &nbsp; <kbd>Esc</kbd> Menu &nbsp; <kbd>Tab</kbd> Map &nbsp; <kbd>1–7</kbd> Weapons</p></div><div class="loadout"><h2>YOUR GAME. YOUR WAD.</h2><p>Have the full game? Load a DOOM or DOOM II IWAD from your computer.</p><label class="file-button" for="wad">↥ Load your WAD<input type="file" id="wad" accept=".wad"></label><p class="small" id="file-note">Files stay on your device. Choose before playing.</p><p class="error" id="error" role="alert" hidden></p></div></section>
+    <footer><span>ENGINE BY id SOFTWARE <span class="slash">/</span> PORTED WITH DOOMGENERIC</span><a href="about.html">Source & credits ↗</a></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "wasmdoom",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "dev": "python3 scripts/serve.py",
+    "start": "python3 scripts/serve.py",
+    "test": "node --test tests/wad.test.mjs && playwright test",
+    "test:ai": "python3 scripts/test_worthy.py"
+  },
+  "devDependencies": { "@playwright/test": "^1.58.2" }
+}
