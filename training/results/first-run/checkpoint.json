@@ -1,0 +1,691 @@
+{
+  "version": 1,
+  "fingerprint": "5083a1418e445c8bd2ae6d85ade234ab5cdb82927e77420a55d41809274a9b9e",
+  "config": {
+    "generations": 16,
+    "population": 16,
+    "seconds": 20,
+    "evaluation_seeds": 32,
+    "seed": 20260905,
+    "output": "training/results/first-run"
+  },
+  "generation": 16,
+  "player_pool": [
+    [
+      192,
+      12,
+      25,
+      25,
+      50,
+      4,
+      70,
+      1024
+    ],
+    [
+      238,
+      13,
+      13,
+      20,
+      62,
+      3,
+      43,
+      1307
+    ],
+    [
+      246,
+      16,
+      12,
+      27,
+      72,
+      3,
+      76,
+      1388
+    ],
+    [
+      221,
+      9,
+      18,
+      24,
+      67,
+      7,
+      105,
+      1610
+    ],
+    [
+      221,
+      9,
+      18,
+      24,
+      67,
+      7,
+      105,
+      1497
+    ],
+    [
+      221,
+      9,
+      18,
+      19,
+      67,
+      7,
+      105,
+      1497
+    ],
+    [
+      217,
+      26,
+      12,
+      13,
+      61,
+      9,
+      101,
+      1451
+    ]
+  ],
+  "enemy_pool": [
+    [
+      288,
+      20,
+      70,
+      35,
+      6,
+      64,
+      24,
+      66
+    ],
+    [
+      259,
+      26,
+      37,
+      32,
+      6,
+      59,
+      27,
+      57
+    ],
+    [
+      225,
+      33,
+      35,
+      31,
+      6,
+      73,
+      35,
+      40
+    ],
+    [
+      191,
+      25,
+      35,
+      29,
+      6,
+      61,
+      28,
+      43
+    ],
+    [
+      160,
+      23,
+      45,
+      43,
+      6,
+      83,
+      24,
+      54
+    ],
+    [
+      160,
+      12,
+      42,
+      41,
+      6,
+      96,
+      24,
+      52
+    ],
+    [
+      160,
+      12,
+      53,
+      41,
+      6,
+      96,
+      24,
+      52
+    ],
+    [
+      319,
+      12,
+      62,
+      42,
+      7,
+      92,
+      24,
+      72
+    ],
+    [
+      319,
+      12,
+      62,
+      42,
+      7,
+      92,
+      24,
+      80
+    ]
+  ],
+  "history": [
+    {
+      "generation": 1,
+      "role": "player",
+      "validation_gain": -0.026874999999999982,
+      "accepted": false,
+      "policy": [
+        192,
+        12,
+        25,
+        25,
+        50,
+        4,
+        70,
+        1024
+      ]
+    },
+    {
+      "generation": 1,
+      "role": "enemy",
+      "validation_gain": 0.028124999999999956,
+      "accepted": true,
+      "policy": [
+        259,
+        26,
+        37,
+        32,
+        6,
+        59,
+        27,
+        57
+      ]
+    },
+    {
+      "generation": 2,
+      "role": "player",
+      "validation_gain": -0.020625000000000115,
+      "accepted": false,
+      "policy": [
+        192,
+        12,
+        25,
+        25,
+        50,
+        4,
+        70,
+        1024
+      ]
+    },
+    {
+      "generation": 2,
+      "role": "enemy",
+      "validation_gain": -0.04437500000000005,
+      "accepted": false,
+      "policy": [
+        259,
+        26,
+        37,
+        32,
+        6,
+        59,
+        27,
+        57
+      ]
+    },
+    {
+      "generation": 3,
+      "role": "player",
+      "validation_gain": 0.011249999999999982,
+      "accepted": true,
+      "policy": [
+        238,
+        13,
+        13,
+        20,
+        62,
+        3,
+        43,
+        1307
+      ]
+    },
+    {
+      "generation": 3,
+      "role": "enemy",
+      "validation_gain": 0.0,
+      "accepted": false,
+      "policy": [
+        259,
+        26,
+        37,
+        32,
+        6,
+        59,
+        27,
+        57
+      ]
+    },
+    {
+      "generation": 4,
+      "role": "player",
+      "validation_gain": 0.014687499999999964,
+      "accepted": true,
+      "policy": [
+        246,
+        16,
+        12,
+        27,
+        72,
+        3,
+        76,
+        1388
+      ]
+    },
+    {
+      "generation": 4,
+      "role": "enemy",
+      "validation_gain": 0.0068750000000001865,
+      "accepted": true,
+      "policy": [
+        225,
+        33,
+        35,
+        31,
+        6,
+        73,
+        35,
+        40
+      ]
+    },
+    {
+      "generation": 5,
+      "role": "player",
+      "validation_gain": 0.0,
+      "accepted": false,
+      "policy": [
+        246,
+        16,
+        12,
+        27,
+        72,
+        3,
+        76,
+        1388
+      ]
+    },
+    {
+      "generation": 5,
+      "role": "enemy",
+      "validation_gain": -0.0034115000000000117,
+      "accepted": false,
+      "policy": [
+        225,
+        33,
+        35,
+        31,
+        6,
+        73,
+        35,
+        40
+      ]
+    },
+    {
+      "generation": 6,
+      "role": "player",
+      "validation_gain": 0.0,
+      "accepted": false,
+      "policy": [
+        246,
+        16,
+        12,
+        27,
+        72,
+        3,
+        76,
+        1388
+      ]
+    },
+    {
+      "generation": 6,
+      "role": "enemy",
+      "validation_gain": -0.01919274999999998,
+      "accepted": false,
+      "policy": [
+        225,
+        33,
+        35,
+        31,
+        6,
+        73,
+        35,
+        40
+      ]
+    },
+    {
+      "generation": 7,
+      "role": "player",
+      "validation_gain": -0.020625000000000115,
+      "accepted": false,
+      "policy": [
+        246,
+        16,
+        12,
+        27,
+        72,
+        3,
+        76,
+        1388
+      ]
+    },
+    {
+      "generation": 7,
+      "role": "enemy",
+      "validation_gain": 0.016874999999999973,
+      "accepted": true,
+      "policy": [
+        191,
+        25,
+        35,
+        29,
+        6,
+        61,
+        28,
+        43
+      ]
+    },
+    {
+      "generation": 8,
+      "role": "player",
+      "validation_gain": 0.013437499999999991,
+      "accepted": true,
+      "policy": [
+        221,
+        9,
+        18,
+        24,
+        67,
+        7,
+        105,
+        1610
+      ]
+    },
+    {
+      "generation": 8,
+      "role": "enemy",
+      "validation_gain": 0.3711986666666667,
+      "accepted": true,
+      "policy": [
+        160,
+        23,
+        45,
+        43,
+        6,
+        83,
+        24,
+        54
+      ]
+    },
+    {
+      "generation": 9,
+      "role": "player",
+      "validation_gain": 0.016874999999999973,
+      "accepted": true,
+      "policy": [
+        221,
+        9,
+        18,
+        24,
+        67,
+        7,
+        105,
+        1497
+      ]
+    },
+    {
+      "generation": 9,
+      "role": "enemy",
+      "validation_gain": 0.4163836249999999,
+      "accepted": true,
+      "policy": [
+        160,
+        12,
+        42,
+        41,
+        6,
+        96,
+        24,
+        52
+      ]
+    },
+    {
+      "generation": 10,
+      "role": "player",
+      "validation_gain": -0.0027083333333330906,
+      "accepted": false,
+      "policy": [
+        221,
+        9,
+        18,
+        24,
+        67,
+        7,
+        105,
+        1497
+      ]
+    },
+    {
+      "generation": 10,
+      "role": "enemy",
+      "validation_gain": 0.25265625,
+      "accepted": true,
+      "policy": [
+        160,
+        12,
+        53,
+        41,
+        6,
+        96,
+        24,
+        52
+      ]
+    },
+    {
+      "generation": 11,
+      "role": "player",
+      "validation_gain": 0.030000000000000027,
+      "accepted": true,
+      "policy": [
+        221,
+        9,
+        18,
+        19,
+        67,
+        7,
+        105,
+        1497
+      ]
+    },
+    {
+      "generation": 11,
+      "role": "enemy",
+      "validation_gain": -0.26229162500000003,
+      "accepted": false,
+      "policy": [
+        160,
+        12,
+        53,
+        41,
+        6,
+        96,
+        24,
+        52
+      ]
+    },
+    {
+      "generation": 12,
+      "role": "player",
+      "validation_gain": -0.0027083333333333126,
+      "accepted": false,
+      "policy": [
+        221,
+        9,
+        18,
+        19,
+        67,
+        7,
+        105,
+        1497
+      ]
+    },
+    {
+      "generation": 12,
+      "role": "enemy",
+      "validation_gain": -0.16609375000000015,
+      "accepted": false,
+      "policy": [
+        160,
+        12,
+        53,
+        41,
+        6,
+        96,
+        24,
+        52
+      ]
+    },
+    {
+      "generation": 13,
+      "role": "player",
+      "validation_gain": -0.0641666666666667,
+      "accepted": false,
+      "policy": [
+        221,
+        9,
+        18,
+        19,
+        67,
+        7,
+        105,
+        1497
+      ]
+    },
+    {
+      "generation": 13,
+      "role": "enemy",
+      "validation_gain": -0.009375000000000133,
+      "accepted": false,
+      "policy": [
+        160,
+        12,
+        53,
+        41,
+        6,
+        96,
+        24,
+        52
+      ]
+    },
+    {
+      "generation": 14,
+      "role": "player",
+      "validation_gain": 0.028750000000000053,
+      "accepted": true,
+      "policy": [
+        217,
+        26,
+        12,
+        13,
+        61,
+        9,
+        101,
+        1451
+      ]
+    },
+    {
+      "generation": 14,
+      "role": "enemy",
+      "validation_gain": 0.014062500000000089,
+      "accepted": true,
+      "policy": [
+        319,
+        12,
+        62,
+        42,
+        7,
+        92,
+        24,
+        72
+      ]
+    },
+    {
+      "generation": 15,
+      "role": "player",
+      "validation_gain": -0.16505208333333332,
+      "accepted": false,
+      "policy": [
+        217,
+        26,
+        12,
+        13,
+        61,
+        9,
+        101,
+        1451
+      ]
+    },
+    {
+      "generation": 15,
+      "role": "enemy",
+      "validation_gain": 0.3442534999999999,
+      "accepted": true,
+      "policy": [
+        319,
+        12,
+        62,
+        42,
+        7,
+        92,
+        24,
+        80
+      ]
+    },
+    {
+      "generation": 16,
+      "role": "player",
+      "validation_gain": 0.0,
+      "accepted": false,
+      "policy": [
+        217,
+        26,
+        12,
+        13,
+        61,
+        9,
+        101,
+        1451
+      ]
+    },
+    {
+      "generation": 16,
+      "role": "enemy",
+      "validation_gain": -0.001875000000000071,
+      "accepted": false,
+      "policy": [
+        319,
+        12,
+        62,
+        42,
+        7,
+        92,
+        24,
+        80
+      ]
+    }
+  ]
+}

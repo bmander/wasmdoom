@@ -4,6 +4,12 @@
 #include "p_mobj.h"
 
 void P_WorthySetEnabled(int enabled);
+// Tactical choices only; training cannot change health, damage or move speed.
+typedef struct {
+    int range, cover_wait, cover_retry, peek_time, dodge_reaction;
+    int flank, attack_delay, lead;
+} worthy_policy_t;
+void P_WorthySetPolicy(const worthy_policy_t *policy);
 boolean P_WorthyEnabled(void);
 boolean P_WorthyChase(mobj_t *actor);
 boolean P_WorthyCanFire(mobj_t *actor);

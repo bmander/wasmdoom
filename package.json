@@ -8,7 +8,9 @@
     "dev": "python3 scripts/serve.py",
     "start": "python3 scripts/serve.py",
     "test": "node --test tests/wad.test.mjs && playwright test",
-    "test:ai": "python3 scripts/test_worthy.py"
+    "test:ai": "python3 scripts/test_worthy.py",
+    "train": "python3 -m training.selfplay",
+    "test:training": "python3 -m unittest discover -s tests -p 'test_selfplay.py'"
   },
   "devDependencies": { "@playwright/test": "^1.58.2" }
 }

@@ -9,6 +9,24 @@
 #include "s_sound.h"
 
 static int enabled;
+static const worthy_policy_t default_policy = {288, 20, 70, 35, 6, 64, 24, 66};
+static worthy_policy_t policy = {288, 20, 70, 35, 6, 64, 24, 66};
+static int bounded(int value, int low, int high)
+{
+    return value < low ? low : value > high ? high : value;
+}
+void P_WorthySetPolicy(const worthy_policy_t *value)
+{
+    if (!value) { policy = default_policy; return; }
+    policy.range = bounded(value->range, 160, 400);
+    policy.cover_wait = bounded(value->cover_wait, 12, 70);
+    policy.cover_retry = bounded(value->cover_retry, 35, 140);
+    policy.peek_time = bounded(value->peek_time, 18, 70);
+    policy.dodge_reaction = bounded(value->dodge_reaction, 6, 16);
+    policy.flank = bounded(value->flank, 0, 96);
+    policy.attack_delay = bounded(value->attack_delay, 24, 60);
+    policy.lead = bounded(value->lead, 0, 80);
+}
 extern boolean P_Move(mobj_t *actor);
 extern boolean P_CheckMeleeRange(mobj_t *actor);
 extern boolean P_CheckMissileRange(mobj_t *actor);
@@ -93,8 +111,11 @@ void P_WorthyAim(mobj_t *source, mobj_t *target, fixed_t speed,
     int flight = P_AproxDistance(target->x - source->x, target->y - source->y) / speed;
     if (flight > 16) flight = 16;
     // Partial, capped prediction: changing direction still beats the shot.
-    int64_t dx = (int64_t)target->momx * flight * 2 / 3;
-    int64_t dy = (int64_t)target->momy * flight * 2 / 3;
+    // Preserve the original 2/3 lead exactly for the shipped default policy.
+    int64_t dx = policy.lead == 66 ? (int64_t)target->momx * flight * 2 / 3
+        : (int64_t)target->momx * flight * policy.lead / 100;
+    int64_t dy = policy.lead == 66 ? (int64_t)target->momy * flight * 2 / 3
+        : (int64_t)target->momy * flight * policy.lead / 100;
     const fixed_t cap = 96 * FRACUNIT;
     if (dx > cap) dx = cap;
     if (dx < -cap) dx = -cap;
@@ -139,7 +160,7 @@ static void find_spacing(mobj_t *actor)
 static void abandon_cover(mobj_t *actor)
 {
     actor->worthy.cover_state = WORTHY_OPEN;
-    actor->worthy.cover_retry = leveltime + 2 * TICRATE;
+    actor->worthy.cover_retry = leveltime + policy.cover_retry;
     actor->worthy.route_count = actor->worthy.route_index = 0;
 }
 
@@ -159,7 +180,7 @@ static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering)
         if (!visible || leveltime < actor->worthy.cover_retry
             || P_AproxDistance(actor->worthy.x - actor->x, actor->worthy.y - actor->y) < 128 * FRACUNIT)
             return false;
-        actor->worthy.cover_retry = leveltime + 2 * TICRATE + seed % TICRATE;
+        actor->worthy.cover_retry = leveltime + policy.cover_retry + seed % TICRATE;
         if (!P_WorthyFindCover(actor)) return false;
         actor->worthy.cover_state = WORTHY_HIDE;
         actor->worthy.cover_until = leveltime + 4 * TICRATE;
@@ -193,9 +214,9 @@ static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering)
     if (P_AproxDistance(gx - actor->x, gy - actor->y) <= reach) {
         if (hiding) {
             if (visible) { abandon_cover(actor); return false; }
-            cover_destination(actor, WORTHY_WAIT, 20 + seed % 23);
+            cover_destination(actor, WORTHY_WAIT, policy.cover_wait + seed % 23);
         } else {
-            cover_destination(actor, WORTHY_FIRE, TICRATE);
+            cover_destination(actor, WORTHY_FIRE, policy.peek_time);
         }
         actor->movedir = 8;
         return actor->worthy.cover_state != WORTHY_FIRE;
@@ -241,13 +262,13 @@ boolean P_WorthyChase(mobj_t *actor)
         && difference > -(int32_t)(ANG45 / 2) && difference < (int32_t)(ANG45 / 2);
     if (!threatened) actor->worthy.threat_since = 0;
     else if (!actor->worthy.threat_since) actor->worthy.threat_since = leveltime + 1;
-    boolean dodge = threatened && leveltime + 1 - actor->worthy.threat_since >= 6;
+    boolean dodge = threatened && leveltime + 1 - actor->worthy.threat_since >= policy.dodge_reaction;
 
     if (ranged && use_cover(actor, visible, recovering)) return true;
     if (ranged && visible && !recovering && leveltime >= actor->worthy.next_attack
         && (actor->worthy.cover_state == WORTHY_FIRE || !dodge || ((leveltime / 12 + seed) & 1))
         && P_WorthyCanFire(actor) && P_CheckMissileRange(actor)) {
-        actor->worthy.next_attack = leveltime + 24 + seed % 12;
+        actor->worthy.next_attack = leveltime + policy.attack_delay + seed % 12;
         actor->flags |= MF_JUSTATTACKED;
         P_SetMobjState(actor, actor->info->missilestate);
         return true;
@@ -262,7 +283,7 @@ boolean P_WorthyChase(mobj_t *actor)
     fixed_t ux = FixedDiv(dx, distance), uy = FixedDiv(dy, distance);
     fixed_t gx = actor->worthy.x, gy = actor->worthy.y;
     if (ranged && visible) {
-        int preferred = actor->type == MT_SHOTGUY ? 192 : 288;
+        int preferred = actor->type == MT_SHOTGUY ? policy.range * 2 / 3 : policy.range;
         if (actor->health < actor->info->spawnhealth / 3) preferred += 128;
         if (distance < (preferred - 64) * FRACUNIT) {
             gx = actor->x - ux * 96; gy = actor->y - uy * 96;
@@ -274,7 +295,7 @@ boolean P_WorthyChase(mobj_t *actor)
             }
         } else if (seed % 3) {
             // A fixed approach offset, not a new sideways impulse each step.
-            gx -= uy * side * 64; gy += ux * side * 64;
+            gx -= uy * side * policy.flank; gy += ux * side * policy.flank;
         }
         if (dodge) {
             gx = actor->x - uy * side * 96;

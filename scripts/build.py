@@ -57,7 +57,7 @@ def source_filter(info):
     return info
 
 with tarfile.open(ROOT / 'public/source.tar.gz', 'w:gz') as archive:
-    for item in ['vendor', 'src', 'scripts', 'tests', 'README.md', 'LICENSE',
+    for item in ['vendor', 'src', 'scripts', 'tests', 'training', 'README.md', 'LICENSE',
                  'package.json', 'package-lock.json', 'playwright.config.js', '.gitignore', '.github']:
         if (ROOT / item).exists():
             archive.add(ROOT / item, arcname='wasmdoom/' + item, filter=source_filter)
