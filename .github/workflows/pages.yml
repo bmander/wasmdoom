@@ -42,6 +42,8 @@ jobs:
           npm run build
       - name: Test enemy behavior in the native engine
         run: npm run test:ai
+      - name: Verify the offline self-play arena
+        run: npm run test:training
       - name: Install browser for integration tests
         run: npx playwright install --with-deps chromium
       - name: Test the compiled game in a browser

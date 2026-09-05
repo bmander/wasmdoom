@@ -112,12 +112,12 @@ int main(int argc, char **argv)
         int map, limit;
         player_policy_t p;
         worthy_policy_t e;
-        int fields = sscanf(line, "%u %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+        int fields = sscanf(line, "%u %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
             &seed, &map, &limit, &p.range, &p.strafe, &p.advance, &p.retreat,
             &p.aim_gain, &p.fire_angle, &p.switch_time, &p.turn_rate,
             &e.range, &e.cover_wait, &e.cover_retry, &e.peek_time,
-            &e.dodge_reaction, &e.flank, &e.attack_delay, &e.lead);
-        if (fields != 19 || map < 1 || map > 9 || limit < 1 || limit > 3500
+            &e.dodge_reaction, &e.flank, &e.attack_delay, &e.lead, &e.pursuit_lead, &e.cover_use);
+        if (fields != 21 || map < 1 || map > 9 || limit < 1 || limit > 3500
             || p.range < 96 || p.range > 400 || p.strafe < 0 || p.strafe > 40
             || p.advance < 12 || p.advance > 50 || p.retreat < 12 || p.retreat > 50
             || p.aim_gain < 10 || p.aim_gain > 100 || p.fire_angle < 1 || p.fire_angle > 12

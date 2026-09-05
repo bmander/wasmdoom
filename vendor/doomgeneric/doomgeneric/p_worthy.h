@@ -7,7 +7,7 @@ void P_WorthySetEnabled(int enabled);
 // Tactical choices only; training cannot change health, damage or move speed.
 typedef struct {
     int range, cover_wait, cover_retry, peek_time, dodge_reaction;
-    int flank, attack_delay, lead;
+    int flank, attack_delay, lead, pursuit_lead, cover_use;
 } worthy_policy_t;
 void P_WorthySetPolicy(const worthy_policy_t *policy);
 boolean P_WorthyEnabled(void);

@@ -139,6 +139,17 @@ blockmap searches; the mod does not need a server, AI service, or extra assets.
 Mouse capture uses the browser's [Pointer Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API).
 The save adapter uses Emscripten's [filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html).
 
+## Offline self-play experiments
+
+The [training laboratory](training/README.md) builds a native player bot and
+trains player/enemy tactical policies against a league of past opponents. Run
+`npm run train -- --output .cache/my-experiment` to produce saved policies, raw
+match results, and an evaluation report. It requires Python and a C compiler;
+training uses neither a GPU nor the browser. Learned policies are not enabled in
+the game automatically. Browser watch mode is a future step.
+The [first experiment results](training/RESULTS.md) include successful training
+updates and the inconclusive held-out evaluation, with all raw data retained.
+
 ## Verification
 
 ```sh

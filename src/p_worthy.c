@@ -9,8 +9,8 @@
 #include "s_sound.h"
 
 static int enabled;
-static const worthy_policy_t default_policy = {288, 20, 70, 35, 6, 64, 24, 66};
-static worthy_policy_t policy = {288, 20, 70, 35, 6, 64, 24, 66};
+static const worthy_policy_t default_policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100};
+static worthy_policy_t policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100};
 static int bounded(int value, int low, int high)
 {
     return value < low ? low : value > high ? high : value;
@@ -26,6 +26,8 @@ void P_WorthySetPolicy(const worthy_policy_t *value)
     policy.flank = bounded(value->flank, 0, 96);
     policy.attack_delay = bounded(value->attack_delay, 24, 60);
     policy.lead = bounded(value->lead, 0, 80);
+    policy.pursuit_lead = bounded(value->pursuit_lead, 0, 12);
+    policy.cover_use = bounded(value->cover_use, 0, 100);
 }
 extern boolean P_Move(mobj_t *actor);
 extern boolean P_CheckMeleeRange(mobj_t *actor);
@@ -177,6 +179,7 @@ static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering)
 {
     unsigned seed = personality(actor);
     if (actor->worthy.cover_state == WORTHY_OPEN) {
+        if (seed % 100 >= (unsigned)policy.cover_use) return false;
         if (!visible || leveltime < actor->worthy.cover_retry
             || P_AproxDistance(actor->worthy.x - actor->x, actor->worthy.y - actor->y) < 128 * FRACUNIT)
             return false;
@@ -282,6 +285,12 @@ boolean P_WorthyChase(mobj_t *actor)
     if (distance < FRACUNIT) distance = FRACUNIT;
     fixed_t ux = FixedDiv(dx, distance), uy = FixedDiv(dy, distance);
     fixed_t gx = actor->worthy.x, gy = actor->worthy.y;
+    if (!ranged && visible && distance > 96 * FRACUNIT && policy.pursuit_lead) {
+        // A learned intercept choice for melee pursuers, using observed motion.
+        // The shipped policy leaves this at zero; prediction is always capped.
+        gx += bounded((int64_t)target->momx * policy.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
+        gy += bounded((int64_t)target->momy * policy.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
+    }
     if (ranged && visible) {
         int preferred = actor->type == MT_SHOTGUY ? policy.range * 2 / 3 : policy.range;
         if (actor->health < actor->info->spawnhealth / 3) preferred += 128;

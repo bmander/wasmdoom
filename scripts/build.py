@@ -52,7 +52,7 @@ for port, filename in [('sdl2', 'SDL2.txt'), ('sdl2_mixer', 'SDL2_mixer.txt')]:
 shutil.copyfile(Path(emcc).resolve().parent / 'LICENSE', licenses / 'emscripten.txt')
 
 def source_filter(info):
-    if '.git' in Path(info.name).parts:
+    if any(part in {'.git', '__pycache__'} for part in Path(info.name).parts):
         return None
     return info
 

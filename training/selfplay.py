@@ -19,7 +19,8 @@ PLAYER = [('range', 96, 400, 192), ('strafe', 0, 40, 12), ('advance', 12, 50, 25
 ENEMY = [('range', 160, 400, 288), ('cover_wait', 12, 70, 20),
          ('cover_retry', 35, 140, 70), ('peek_time', 18, 70, 35),
          ('dodge_reaction', 6, 16, 6), ('flank', 0, 96, 64),
-         ('attack_delay', 24, 60, 24), ('lead', 0, 80, 66)]
+         ('attack_delay', 24, 60, 24), ('lead', 0, 80, 66),
+         ('pursuit_lead', 0, 12, 0), ('cover_use', 0, 100, 100)]
 BASE_PLAYER = tuple(row[3] for row in PLAYER)
 BASE_ENEMY = tuple(row[3] for row in ENEMY)
 
@@ -196,8 +197,8 @@ def run(args):
                                                  ('enemy', enemy_pool, player_pool, ENEMY)]:
                     rng = random.Random(args.seed + generation * 1009 + (role == 'enemy'))
                     rival_set = opponents(rivals, rng)
-                    cases = [(1 + i % 2, 1000 + generation * 16 + i) for i in range(4)]
-                    validation = [(1 + i % 2, 100000 + generation * 16 + i) for i in range(4)]
+                    cases = [(1 + i % 2, 1000 + generation * 1000 + i) for i in range(args.train_seeds)]
+                    validation = [(1 + i % 2, 100000 + generation * 1000 + i) for i in range(args.validation_seeds)]
                     incumbent = tuple(pool[-1])
                     candidates = [incumbent]
                     candidates += [mutate(incumbent, space, rng) for _ in range(args.population - 1)]
@@ -205,17 +206,19 @@ def run(args):
                     best = candidates[max(range(len(candidates)), key=lambda i: fitness[i])]
                     gain = (evaluator.fitness(role, best, rival_set, validation, 'validation')
                             - evaluator.fitness(role, incumbent, rival_set, validation, 'validation'))
-                    accepted = best != incumbent and gain > .005
+                    anchor_gain = (evaluator.fitness(role, best, [rivals[0]], validation, 'validation')
+                                   - evaluator.fitness(role, incumbent, [rivals[0]], validation, 'validation'))
+                    accepted = best != incumbent and gain > .005 and anchor_gain >= 0
                     if accepted: pool.append(best)
                     record = {'generation': generation, 'role': role, 'validation_gain': gain,
-                              'accepted': accepted, 'policy': list(pool[-1])}
+                              'anchor_gain': anchor_gain, 'accepted': accepted, 'policy': list(pool[-1])}
                     history.append(record)
                     print(f'Generation {generation:02} {role:6}: validation gain {gain:+.3f}; '
                           f'{"promoted" if accepted else "retained"}; {len(evaluator.cache)} matches', flush=True)
-                save(output / 'checkpoint.json', {'version': 1, 'fingerprint': code_hash, 'config': config,
+                save(output / 'checkpoint.json', {'version': 2, 'fingerprint': code_hash, 'config': config,
                     'generation': generation, 'player_pool': player_pool, 'enemy_pool': enemy_pool, 'history': history})
             # Held-out data is evaluated only after all selection is finished.
-            cases = [(map_id, 1000000 + map_id * 10000 + i) for map_id in [1, 2, 3]
+            cases = [(map_id, args.evaluation_base + map_id * 10000 + i) for map_id in [1, 2, 3]
                      for i in range(args.evaluation_seeds)]
             ps = {'initial': BASE_PLAYER, 'middle': player_pool[len(player_pool) // 2], 'final': player_pool[-1]}
             es = {'initial': BASE_ENEMY, 'middle': enemy_pool[len(enemy_pool) // 2], 'final': enemy_pool[-1]}
@@ -234,7 +237,7 @@ def run(args):
                     for r, b in zip(raw[key], base)], args.seed)
                 unseen[role] = paired_interval([sign * (r['score'] - b['score'])
                     for r, b in zip(raw[key], base) if r['map'] == 3], args.seed)
-            result = {'version': 1, 'fingerprint': code_hash, 'config': config,
+            result = {'version': 2, 'fingerprint': code_hash, 'config': config,
                 'matches': len(evaluator.cache), 'audit_matches': 3,
                 'elapsed_seconds': time.monotonic() - started,
                 'player_parameters': [r[0] for r in PLAYER], 'enemy_parameters': [r[0] for r in ENEMY],
@@ -255,9 +258,15 @@ if __name__ == '__main__':
     parser.add_argument('--population', type=int, default=10)
     parser.add_argument('--seconds', type=int, default=20)
     parser.add_argument('--evaluation-seeds', type=int, default=16, help='Held-out seeds per map')
+    parser.add_argument('--train-seeds', type=int, default=16, help='Encounters per opponent for candidate selection')
+    parser.add_argument('--validation-seeds', type=int, default=64, help='Separate encounters per opponent for promotion')
+    parser.add_argument('--evaluation-base', type=int, default=2000000, help='Fresh final-test seed family after experiment design changes')
     parser.add_argument('--seed', type=int, default=20260905)
     parser.add_argument('--output', default='.cache/selfplay-run')
     args = parser.parse_args()
-    if args.generations < 1 or args.population < 2 or not 1 <= args.seconds <= 100 or args.evaluation_seeds < 2:
+    if args.generations < 1 or args.population < 2 or not 1 <= args.seconds <= 100 or args.evaluation_seeds < 2 \
+        or not 2 <= args.train_seeds <= 500 or not 2 <= args.validation_seeds <= 500 \
+        or args.generations > 80 or not 1000000 <= args.evaluation_base <= 4000000000 \
+        or args.evaluation_seeds > 1000:
         parser.error('Use positive generations, population >= 2, 1–100 seconds, and >= 2 evaluation seeds.')
     run(args)

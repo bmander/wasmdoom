@@ -17,7 +17,7 @@ class SelfPlayTests(unittest.TestCase):
         with Arena(self.binary) as arena:
             first = arena.play(BASE_PLAYER, BASE_ENEMY, 12, 1)
             arena.play((400, 40, 50, 12, 100, 8, 25, 2048),
-                       (160, 70, 140, 70, 16, 0, 60, 0), 23, 3)
+                       (160, 70, 140, 70, 16, 0, 60, 0, 12, 0), 23, 3)
             self.assertEqual(first, arena.play(BASE_PLAYER, BASE_ENEMY, 12, 1))
             self.assertEqual(first['result'], 1)
             self.assertEqual(first['enemy_health'], 0)
@@ -33,7 +33,7 @@ class SelfPlayTests(unittest.TestCase):
 
     def test_both_policies_change_combat_without_changing_enemy_loadouts(self):
         player_variant = (300, 40, 50, 50, 100, 8, 25, 2048)
-        enemy_variant = (160, 70, 140, 70, 16, 0, 60, 0)
+        enemy_variant = (160, 70, 140, 70, 16, 0, 60, 0, 12, 0)
         with Arena(self.binary) as arena:
             base, player, enemy = [], [], []
             for seed in [12, 23, 34]:
@@ -50,7 +50,8 @@ class SelfPlayTests(unittest.TestCase):
     def test_training_writes_auditable_policies_and_held_out_results(self):
         with tempfile.TemporaryDirectory(dir=ROOT / '.cache') as directory:
             subprocess.run(['python3', '-m', 'training.selfplay', '--generations', '1',
-                            '--population', '2', '--evaluation-seeds', '2', '--output', directory],
+                            '--population', '2', '--train-seeds', '2', '--validation-seeds', '2',
+                            '--evaluation-seeds', '2', '--output', directory],
                            cwd=ROOT, check=True, capture_output=True, text=True, timeout=60)
             path = Path(directory)
             result = json.loads((path / 'summary.json').read_text())

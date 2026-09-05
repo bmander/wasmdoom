@@ -1,0 +1,6 @@
+{
+  "platform": "macOS-15.7.4-x86_64-i386-64bit-Mach-O",
+  "machine": "x86_64",
+  "python": "3.14.2",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)"
+}
