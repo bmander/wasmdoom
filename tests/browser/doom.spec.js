@@ -26,6 +26,8 @@ test('compiled engine renders and plays, with pause, sound, fullscreen and focus
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
+  // Wait for the first compositor frame before capturing a headed browser.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await page.screenshot({path: 'test-results/landing.png', fullPage: true});
   const blank = await frame(page);
   await start(page);
@@ -79,7 +81,10 @@ test('download failure is visible and offers retry', async ({page}) => {
 test('layout fits narrow screens', async ({page}) => {
   await page.setViewportSize({width:390,height:844});
   await page.goto('/');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  // Desktop Linux scrollbars occupy part of the viewport; check overflow
+  // against the available content width, not the outer viewport width.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth
+    <= document.documentElement.clientWidth)).toBe(true);
   await page.screenshot({path:'test-results/mobile.png',fullPage:true});
 });
 

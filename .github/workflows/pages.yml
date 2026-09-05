@@ -45,7 +45,7 @@ jobs:
       - name: Install browser for integration tests
         run: npx playwright install --with-deps chromium
       - name: Test the compiled game in a browser
-        run: xvfb-run --auto-servernum npm test
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1440x24" npm test
       - name: Upload site
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4
