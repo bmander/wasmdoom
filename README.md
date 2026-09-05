@@ -135,8 +135,8 @@ npm test
 npm run test:ai
 ```
 
-Browser tests use an installed Google Chrome locally and Playwright Chromium in
-CI, and start a local server if needed.
+Browser tests use an installed Google Chrome locally and Playwright Chromium
+under Xvfb in CI, and start a local server if needed.
 They exercise the actual Wasm engine, entering a level, keyboard movement,
 pause/resume, sound controls, local WAD loading, and download failure handling.
 They also exercise mouse capture/turning, restoring a real save's viewpoint after
