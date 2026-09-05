@@ -1,0 +1,354 @@
+{
+  "version": 3,
+  "fingerprint": "8ea623804a5f3806f050bef3f72eed663e544a7cab91bed2a5d455e52673a570",
+  "config": {
+    "output": "training/results/parameter-v3",
+    "initial": null,
+    "neural": false,
+    "generations": 8,
+    "population": 48,
+    "screen_cases": 24,
+    "train_cases": 96,
+    "validation_cases": 192,
+    "development_base": 3000000,
+    "seed": 20260906,
+    "workers": 4
+  },
+  "policies": {
+    "player": {
+      "params": [
+        282,
+        39,
+        35,
+        38,
+        84,
+        9,
+        111,
+        1517,
+        247,
+        245
+      ],
+      "network": null
+    },
+    "enemy": {
+      "params": [
+        247,
+        15,
+        108,
+        58,
+        6,
+        78,
+        24,
+        33,
+        0,
+        90,
+        125,
+        152,
+        0
+      ],
+      "network": null
+    }
+  },
+  "pools": {
+    "player": [
+      {
+        "params": [
+          192,
+          12,
+          25,
+          25,
+          50,
+          4,
+          70,
+          1024,
+          0,
+          0
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          400,
+          38,
+          50,
+          50,
+          56,
+          5,
+          140,
+          837,
+          85,
+          65
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          400,
+          38,
+          50,
+          50,
+          72,
+          5,
+          140,
+          837,
+          85,
+          65
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          282,
+          39,
+          35,
+          38,
+          84,
+          9,
+          111,
+          1517,
+          247,
+          245
+        ],
+        "network": null
+      }
+    ],
+    "enemy": [
+      {
+        "params": [
+          288,
+          20,
+          70,
+          35,
+          6,
+          64,
+          24,
+          66,
+          0,
+          100,
+          288,
+          128,
+          0
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          247,
+          15,
+          108,
+          58,
+          6,
+          78,
+          24,
+          33,
+          0,
+          90,
+          125,
+          152,
+          0
+        ],
+        "network": null
+      }
+    ]
+  },
+  "history": [
+    {
+      "generation": 1,
+      "role": "player",
+      "gain": 0.2533089739583334,
+      "anchor_gain": 0.2533089739583334,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          400,
+          38,
+          50,
+          50,
+          56,
+          5,
+          140,
+          837,
+          85,
+          65
+        ],
+        "network": null
+      },
+      "incumbent": "9c533ba5e0a2a4a36eac"
+    },
+    {
+      "generation": 1,
+      "role": "enemy",
+      "gain": -0.010654070312499986,
+      "anchor_gain": -0.049116387152777774,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          321,
+          12,
+          86,
+          34,
+          6,
+          76,
+          26,
+          55,
+          2,
+          100,
+          307,
+          42,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 2,
+      "role": "player",
+      "gain": 0.0314701927083334,
+      "anchor_gain": 0.0314701927083334,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          400,
+          38,
+          50,
+          50,
+          72,
+          5,
+          140,
+          837,
+          85,
+          65
+        ],
+        "network": null
+      },
+      "incumbent": "e79847ebd6b733a9f36f"
+    },
+    {
+      "generation": 2,
+      "role": "enemy",
+      "gain": -0.04453081684027771,
+      "anchor_gain": -0.11316940798611108,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          397,
+          12,
+          35,
+          18,
+          6,
+          96,
+          24,
+          48,
+          0,
+          59,
+          96,
+          -128,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 3,
+      "role": "player",
+      "gain": 0.024500609374999982,
+      "anchor_gain": 0.024500609374999982,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          282,
+          39,
+          35,
+          38,
+          84,
+          9,
+          111,
+          1517,
+          247,
+          245
+        ],
+        "network": null
+      },
+      "incumbent": "74678fdf0656611b1c54"
+    },
+    {
+      "generation": 3,
+      "role": "enemy",
+      "gain": 0.03126542968750001,
+      "anchor_gain": 0.07138306423611107,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          247,
+          15,
+          108,
+          58,
+          6,
+          78,
+          24,
+          33,
+          0,
+          90,
+          125,
+          152,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 4,
+      "role": "player",
+      "gain": 0.015266758680555492,
+      "anchor_gain": -0.011924401041666588,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          289,
+          37,
+          32,
+          35,
+          87,
+          9,
+          100,
+          1336,
+          242,
+          268
+        ],
+        "network": null
+      },
+      "incumbent": "0ab945759f3ab1c6a0fc"
+    },
+    {
+      "generation": 4,
+      "role": "enemy",
+      "gain": -0.012657209201388908,
+      "anchor_gain": 0.0010252951388889375,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          247,
+          15,
+          108,
+          58,
+          7,
+          78,
+          24,
+          33,
+          0,
+          90,
+          125,
+          152,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "87735a5ca2203390f9c0"
+    }
+  ],
+  "matches": 67680,
+  "elapsed_seconds": 114.21586552698864
+}

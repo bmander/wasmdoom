@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <math.h>
+#include <ctype.h>
+#include "p_policy_net.h"
 #include "doomgeneric.h"
 #include "doomstat.h"
 #include "p_local.h"
@@ -31,10 +34,11 @@ static unsigned random_scenario(void)
 }
 
 static void match(unsigned seed, int map, int limit, const player_policy_t *player_policy,
-                  const worthy_policy_t *enemy_policy)
+                  const worthy_policy_t *enemy_policy, const float *player_net, const float *enemy_net)
 {
     P_WorthySetEnabled(0);
     G_InitNew(sk_medium, 1, map);
+    P_WorthyResetNavigation();
     gameaction = ga_nothing;
     paused = menuactive = false;
     demoplayback = demorecording = false;
@@ -47,10 +51,12 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
     scenario_rng = seed ? seed : 1;
     prndindex = seed & 255; rndindex = (seed >> 8) & 255;
     Bot_Reset(player_policy, seed);
+    Bot_SetNetwork(player_net);
+    P_WorthySetNetwork(enemy_net);
     P_WorthySetPolicy(enemy_policy);
     mobj_t *enemies[3];
     static const mobjtype_t types[] = {MT_POSSESSED, MT_TROOP, MT_SHOTGUY, MT_SERGEANT};
-    int count = 2 + seed % 2, total_health = 0;
+    int count = 2 + seed % 2, total_health = 0, layout_retries = 0;
     for (int n = 0; n < count; n++) {
         mobjtype_t type = types[(seed + n) % 4];
         mobj_t *enemy = NULL;
@@ -64,6 +70,16 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
                 && P_CheckSight(enemy, self)) break;
             P_RemoveMobj(enemy);
             enemy = NULL;
+        }
+        if (!enemy && layout_retries++ < 20) {
+            // Earlier placements can fill a narrow starting corridor. Retry
+            // the entire layout, continuing the separate scenario RNG stream.
+            // This happens before combat and is independent of both policies.
+            for (int i = 0; i < n; i++) P_RemoveMobj(enemies[i]);
+            P_RunThinkers();
+            total_health = 0;
+            n = -1;
+            continue;
         }
         if (!enemy) {
             printf("RESULT {\"error\":\"No valid combat spawn\",\"seed\":%u,\"map\":%d}\n", seed, map);
@@ -102,31 +118,64 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
     fflush(stdout);
 }
 
+// Optional network suffix: two presence flags, each followed by 149 weights
+// when present. Old parameter-only requests explicitly reset both networks.
+static int read_network(char **cursor, float *weights)
+{
+    char *end;
+    long enabled = strtol(*cursor, &end, 10);
+    if (end == *cursor || (enabled != 0 && enabled != 1)) return -1;
+    *cursor = end;
+    if (!enabled) return 0;
+    for (int i = 0; i < POLICY_WEIGHTS; i++) {
+        weights[i] = strtof(*cursor, &end);
+        if (end == *cursor || !isfinite(weights[i]) || fabsf(weights[i]) > 4) return -1;
+        *cursor = end;
+    }
+    return 1;
+}
+
 int main(int argc, char **argv)
 {
     doomgeneric_Create(argc, argv);
     for (int i = 0; i < 3; i++) { clock_ms += 40; doomgeneric_Tick(); }
-    char line[2048];
+    char line[32768];
     while (fgets(line, sizeof(line), stdin)) {
         unsigned seed;
-        int map, limit;
+        int map, limit, offset = 0;
         player_policy_t p;
         worthy_policy_t e;
-        int fields = sscanf(line, "%u %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+        int fields = sscanf(line, "%u %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %n",
             &seed, &map, &limit, &p.range, &p.strafe, &p.advance, &p.retreat,
-            &p.aim_gain, &p.fire_angle, &p.switch_time, &p.turn_rate,
+            &p.aim_gain, &p.fire_angle, &p.switch_time, &p.turn_rate, &p.health_priority, &p.hitscan_priority,
             &e.range, &e.cover_wait, &e.cover_retry, &e.peek_time,
-            &e.dodge_reaction, &e.flank, &e.attack_delay, &e.lead, &e.pursuit_lead, &e.cover_use);
-        if (fields != 21 || map < 1 || map > 9 || limit < 1 || limit > 3500
+            &e.dodge_reaction, &e.flank, &e.attack_delay, &e.lead, &e.pursuit_lead, &e.cover_use,
+            &e.hitscan_range, &e.wounded_bonus, &e.pressure_fire, &offset);
+        if (fields != 26 || map < 1 || map > 9 || limit < 1 || limit > 3500
             || p.range < 96 || p.range > 400 || p.strafe < 0 || p.strafe > 40
             || p.advance < 12 || p.advance > 50 || p.retreat < 12 || p.retreat > 50
             || p.aim_gain < 10 || p.aim_gain > 100 || p.fire_angle < 1 || p.fire_angle > 12
-            || p.switch_time < 18 || p.switch_time > 140 || p.turn_rate < 384 || p.turn_rate > 2048) {
+            || p.switch_time < 18 || p.switch_time > 140 || p.turn_rate < 384 || p.turn_rate > 2048
+            || p.health_priority < 0 || p.health_priority > 384 || p.hitscan_priority < 0 || p.hitscan_priority > 384) {
             puts("RESULT {\"error\":\"Invalid match request\"}");
             fflush(stdout);
             continue;
         }
-        match(seed, map, limit, &p, &e);
+        float pn[POLICY_WEIGHTS], en[POLICY_WEIGHTS];
+        char *cursor = line + offset;
+        while (isspace((unsigned char)*cursor)) cursor++;
+        int has_p = 0, has_e = 0;
+        if (*cursor) {
+            has_p = read_network(&cursor, pn);
+            has_e = has_p < 0 ? -1 : read_network(&cursor, en);
+        }
+        while (isspace((unsigned char)*cursor)) cursor++;
+        if (has_p < 0 || has_e < 0 || *cursor) {
+            puts("RESULT {\"error\":\"Invalid neural policy\"}");
+            fflush(stdout);
+            continue;
+        }
+        match(seed, map, limit, &p, &e, has_p ? pn : NULL, has_e ? en : NULL);
     }
     return 0;
 }

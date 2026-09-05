@@ -1,0 +1,215 @@
+{
+  "config": {
+    "parameters": "training/results/parameter-v3b/checkpoint.json",
+    "neural": "training/results/neural-v3/checkpoint.json",
+    "output": "training/results/final-v3",
+    "base": 9000000,
+    "primary_cases": 512,
+    "unseen_cases": 256,
+    "workers": 4
+  },
+  "fingerprint": "e26aaf9d44402997543ea6de64a158e8371c384059086071a148d3787b326cf0",
+  "evaluation": {
+    "primary": {
+      "matrix": {
+        "original / original": {
+          "matches": 1536,
+          "player_wins": 1339,
+          "enemy_wins": 195,
+          "draws": 2,
+          "player_score": 0.8765513548177083
+        },
+        "parameter / original": {
+          "matches": 1536,
+          "player_wins": 1493,
+          "enemy_wins": 31,
+          "draws": 12,
+          "player_score": 1.1535432063802082
+        },
+        "original / parameter": {
+          "matches": 1536,
+          "player_wins": 1331,
+          "enemy_wins": 201,
+          "draws": 4,
+          "player_score": 0.8657492513020834
+        },
+        "neural / original": {
+          "matches": 1536,
+          "player_wins": 1490,
+          "enemy_wins": 35,
+          "draws": 11,
+          "player_score": 1.1475402395833334
+        },
+        "original / neural": {
+          "matches": 1536,
+          "player_wins": 1304,
+          "enemy_wins": 231,
+          "draws": 1,
+          "player_score": 0.8195816822916666
+        },
+        "parameter / parameter": {
+          "matches": 1536,
+          "player_wins": 1500,
+          "enemy_wins": 27,
+          "draws": 9,
+          "player_score": 1.1597935963541666
+        },
+        "neural / neural": {
+          "matches": 1536,
+          "player_wins": 1492,
+          "enemy_wins": 38,
+          "draws": 6,
+          "player_score": 1.1432286647135417
+        },
+        "constant neural / original": {
+          "matches": 1536,
+          "player_wins": 1492,
+          "enemy_wins": 32,
+          "draws": 12,
+          "player_score": 1.1516452311197916
+        },
+        "original / constant neural": {
+          "matches": 1536,
+          "player_wins": 1319,
+          "enemy_wins": 212,
+          "draws": 5,
+          "player_score": 0.8441966276041667
+        }
+      },
+      "improvement": {
+        "player": {
+          "parameter_vs_original": {
+            "score": {
+              "mean": 0.2769918515625,
+              "ci975": [
+                0.23309670833333332,
+                0.320443
+              ]
+            },
+            "win_rate": {
+              "mean": 0.10026041666666667,
+              "ci975": [
+                0.08072916666666667,
+                0.12044270833333333
+              ]
+            }
+          },
+          "neural_vs_original": {
+            "score": {
+              "mean": 0.270988884765625,
+              "ci975": [
+                0.22906322395833334,
+                0.31571524283854163
+              ]
+            },
+            "win_rate": {
+              "mean": 0.09830729166666667,
+              "ci975": [
+                0.078125,
+                0.11848958333333333
+              ]
+            }
+          },
+          "neural_vs_parameter": {
+            "score": {
+              "mean": -0.006002966796875001,
+              "ci975": [
+                -0.02949927408854167,
+                0.0172205859375
+              ]
+            },
+            "win_rate": {
+              "mean": -0.001953125,
+              "ci975": [
+                -0.013671875,
+                0.009114583333333334
+              ]
+            }
+          },
+          "neural_vs_constant": {
+            "score": {
+              "mean": -0.004104991536458335,
+              "ci975": [
+                -0.027650963541666667,
+                0.019422102864583336
+              ]
+            },
+            "win_rate": {
+              "mean": -0.0013020833333333333,
+              "ci975": [
+                -0.012369791666666666,
+                0.009765625
+              ]
+            }
+          }
+        },
+        "enemy": {
+          "parameter_vs_original": {
+            "score": {
+              "mean": 0.010802103515624998,
+              "ci975": [
+                -0.023915684244791666,
+                0.046118806640625
+              ]
+            },
+            "win_rate": {
+              "mean": 0.00390625,
+              "ci975": [
+                -0.013020833333333334,
+                0.020833333333333332
+              ]
+            }
+          },
+          "neural_vs_original": {
+            "score": {
+              "mean": 0.05696967252604167,
+              "ci975": [
+                0.011203674479166668,
+                0.10015523307291667
+              ]
+            },
+            "win_rate": {
+              "mean": 0.0234375,
+              "ci975": [
+                0.0026041666666666665,
+                0.044921875
+              ]
+            }
+          },
+          "neural_vs_parameter": {
+            "score": {
+              "mean": 0.046167569010416666,
+              "ci975": [
+                -0.0007614446614583333,
+                0.09145432096354167
+              ]
+            },
+            "win_rate": {
+              "mean": 0.01953125,
+              "ci975": [
+                -0.001953125,
+                0.040364583333333336
+              ]
+            }
+          },
+          "neural_vs_constant": {
+            "score": {
+              "mean": 0.0246149453125,
+              "ci975": [
+                -0.019929339843749994,
+                0.06820134244791666
+              ]
+            },
+            "win_rate": {
+              "mean": 0.012369791666666666,
+              "ci975": [
+                -0.0078125,
+                0.031901041666666664
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

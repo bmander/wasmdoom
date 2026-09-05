@@ -1,7 +1,106 @@
-# First offline self-play experiments
+# Offline policy results
 
-**The training pipeline works, but neither experiment establishes a reliable
-overall improvement for both sides.** The browser still uses the original
+**Version 3 improves both sides on fresh encounters in the training maps.** The
+player's improvement also carries to two unseen maps; enemy generalization there
+is inconclusive. The neural stage adds a promising enemy gain, but its advantage
+over parameter search alone is not statistically established.
+
+[Final report](results/final-v3c/report.html) · [Complete metrics](results/final-v3c/summary.json) ·
+[Neural checkpoints](results/neural-v3/checkpoint.json) · [Protocol](PROTOCOL.md)
+
+## Version 3: parameter search followed by neural policies
+
+Each side has a 12–8–5 tanh network with **149 weights and biases**. CPU mutation
+and selection train residual tactical decisions from structured observations.
+The parameter run used 162,792 development matches; neural training used 204,912.
+Both ran eight generations with 48 candidates, shared screening batches,
+successive elimination, and larger independent validation batches. Parameter
+search took 404.5 seconds and neural training 375.7 seconds, excluding compilation
+and later verification. One player and two enemy neural updates were promoted.
+
+The final evaluation froze both pairs before playing **1,536 fresh encounters per
+matchup** on E1M1–E1M3. These are paired comparisons against the same original
+opponent; trained-versus-trained wins do not establish learning on their own.
+
+| Side against its original opponent | Original wins | Neural-stage wins | Win-rate gain | Paired 97.5% interval | Score gain | Paired 97.5% interval |
+| --- | ---: | ---: | ---: | --- | ---: | --- |
+| Player | 1,339/1,536 (87.2%) | 1,490/1,536 (97.0%) | +9.83 pp | +7.81 to +11.85 pp | +0.271 | +0.229 to +0.316 |
+| Enemy team | 195/1,536 (12.7%) | 231/1,536 (15.0%) | +2.34 pp | +0.26 to +4.49 pp | +0.057 | +0.011 to +0.100 |
+
+All four lower bounds are positive, satisfying the predeclared primary criterion.
+Draws were 2 in the original matchup, 11 with the neural-stage player, and 1 with
+the neural enemies. Health, damage, weapons, movement limits, attack animations,
+and minimum enemy attack delay retain the original rules.
+
+## What did the neural stage add?
+
+The parameter-only player already won **1,493/1,536** encounters. Adding its
+network yielded 1,490 wins: a −0.20 pp difference with interval −1.37 to +0.91 pp.
+The player network therefore has **no demonstrated advantage** over the trained
+parameter controller.
+
+The parameter-only enemies won **201/1,536**, compared with **231/1,536** after
+neural training. That +1.95 pp difference has interval **−0.20 to +4.04 pp**;
+its score interval also includes zero. The point estimate is encouraging, but
+it does not establish that the additional neural training reliably beats the
+parameter pair. This comparison also includes extra training compute.
+
+Removing each network's input connections, while retaining its biases and output
+weights, yielded 1,492 player wins and 212 enemy wins against the originals.
+Both neural-versus-constant intervals include zero. The networks contain learned
+observation-dependent connections, but this experiment does **not** establish
+that state dependence itself caused a reliable performance improvement.
+
+## Unseen maps and limits
+
+On **512 encounters** split between E1M4 and E1M5, the neural-stage player improved
+from **446 to 500 wins** (+10.55 pp; interval +6.84 to +14.26 pp). Enemy wins
+changed from **66 to 59** (−1.37 pp; interval −5.08 to +2.54 pp), an inconclusive
+result with a negative point estimate. Enemy gains have not demonstrated transfer
+to unfamiliar map geometry.
+
+These are 20-second pistol combat drills near map starts, involving two or three
+zombies, shotgun zombies, imps, or demons. They do not measure full-level
+completion, visual perception, or difficulty against human players. The browser
+continues to use its original Worthy Adversaries settings; watch mode remains
+future work.
+
+## Infrastructure corrections and audit trail
+
+An early development run stopped when monsters blocked all remaining spawn
+locations. The arena now retries the layout before combat. That interrupted
+checkpoint remains in `results/parameter-v3`; the completed parameter run is
+`results/parameter-v3b`. A separate development-only probe is retained in
+`results/enemy-probe-v3`.
+
+The first frozen evaluation completed its primary cases, then encountered an
+impossible E1M4 layout. Evaluation admission now rejects only the explicit
+“No valid combat spawn” error and takes the next seed on the same map. Exactly
+**one** unseen-map seed, 9040095, was rejected and replaced. No primary seed was
+rejected. Accepted cases and the rejection reason are in
+[admission.json](results/final-v3c/admission.json).
+
+A replay check then found three health/timing differences in the constant-enemy
+ablation caused by a navigation budget surviving from a preceding episode. The
+arena now resets that transient budget at initialization. The same frozen
+checkpoints and admitted seeds were evaluated again; primary improvement metrics
+and all win counts remained unchanged. Earlier evaluation attempts remain in
+`results/final-v3` and `results/final-v3b`. Training used the prior arena revision,
+whose exact sources are archived with each training run. No final-test result
+selected or retrained a policy.
+
+The final matrix contains **18,432 matches**. A separate serial audit replays the
+four-worker results, inserting one-tick predecessors to stress episode reset;
+its detailed result is in [replay-audit.json](results/final-v3c/replay-audit.json).
+Training and evaluation folders include losslessly compressed raw logs, model
+dictionaries, source snapshots, compiler/platform metadata, and fingerprints.
+
+---
+
+## Earlier experiments
+
+**Neither of the first two experiments established a reliable overall
+improvement for both sides.** The browser still uses the original
 hand-tuned policy. Both runs, including the disappointing results, are retained.
 
 Across the two runs, the arena simulated **38,076 training/evaluation matches**

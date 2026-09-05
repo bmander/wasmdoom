@@ -7,6 +7,8 @@
 #include "doomstat.h"
 #include "p_local.h"
 #include "p_worthy.h"
+#include "p_policy_net.h"
+#include <math.h>
 #include "g_game.h"
 
 static uint32_t clock_ms = 1000;
@@ -242,6 +244,24 @@ int main(int argc, char **argv)
     assert(actor->flags & MF_SKULLFLY);
     assert(!P_WorthyWalkSegment(actor, actor->x, actor->y, actor->x + 128 * FRACUNIT, actor->y));
     puts("PASS: navigation probes test body clearance without moving, attacking, or touching actors");
+    // One policy must respond differently to observed health, and disabling
+    // or rejecting it must restore neutral outputs rather than stale weights.
+    policy_net_t net;
+    float weights[POLICY_WEIGHTS] = {0}, inputs[POLICY_INPUTS] = {0};
+    float outputs[POLICY_OUTPUTS];
+    weights[1] = 2; weights[105] = 2;
+    P_PolicyNetLoad(&net, weights);
+    inputs[0] = 1;
+    P_PolicyNetEvaluate(&net, inputs, outputs);
+    assert(outputs[0] > .9f);
+    inputs[0] = -1;
+    P_PolicyNetEvaluate(&net, inputs, outputs);
+    assert(outputs[0] < -.9f);
+    weights[0] = NAN;
+    P_PolicyNetLoad(&net, weights);
+    P_PolicyNetEvaluate(&net, inputs, outputs);
+    assert(!net.enabled && outputs[0] == 0);
+    puts("PASS: neural tactics respond to observations and invalid networks reset safely");
     puts("All Worthy Adversaries engine scenarios passed.");
     return 0;
 }

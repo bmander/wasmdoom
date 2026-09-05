@@ -23,3 +23,8 @@ Cover/peek cycles and committed obstacle routes are implemented in
 `src/p_worthy.c` and `src/p_worthy_nav.c`. `p_map.c`/`p_local.h` expose a geometry-only
 position probe using the original collision rules without touching actors or
 activating specials. Route and cover memory remain transient and unserialized.
+
+Offline policy experiments add `p_policy_net.h` and `src/p_policy_net.c`, a small
+bounded tanh network, plus optional network decisions in `p_worthy.c`. The browser
+does not load learned networks. Parameter defaults preserve the shipped tactics;
+`training/` owns the native arena, player bot, optimizer, and evaluation artifacts.

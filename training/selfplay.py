@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import html
 import json
+import math
 import os
 from pathlib import Path
 import random
@@ -15,12 +16,15 @@ ROOT = Path(__file__).resolve().parent.parent
 # Each row is name, minimum, maximum, starting value. Order is the arena protocol.
 PLAYER = [('range', 96, 400, 192), ('strafe', 0, 40, 12), ('advance', 12, 50, 25),
           ('retreat', 12, 50, 25), ('aim_gain', 10, 100, 50), ('fire_angle', 1, 12, 4),
-          ('switch_time', 18, 140, 70), ('turn_rate', 384, 2048, 1024)]
+          ('switch_time', 18, 140, 70), ('turn_rate', 384, 2048, 1024),
+          ('health_priority', 0, 384, 0), ('hitscan_priority', 0, 384, 0)]
 ENEMY = [('range', 160, 400, 288), ('cover_wait', 12, 70, 20),
          ('cover_retry', 35, 140, 70), ('peek_time', 18, 70, 35),
          ('dodge_reaction', 6, 16, 6), ('flank', 0, 96, 64),
          ('attack_delay', 24, 60, 24), ('lead', 0, 80, 66),
-         ('pursuit_lead', 0, 12, 0), ('cover_use', 0, 100, 100)]
+         ('pursuit_lead', 0, 12, 0), ('cover_use', 0, 100, 100),
+         ('hitscan_range', 96, 512, 288), ('wounded_bonus', -128, 192, 128),
+         ('pressure_fire', 0, 1, 0)]
 BASE_PLAYER = tuple(row[3] for row in PLAYER)
 BASE_ENEMY = tuple(row[3] for row in ENEMY)
 
@@ -29,7 +33,7 @@ def fingerprint():
     digest = hashlib.sha256()
     paths = [ROOT / 'scripts/build_training.py', ROOT / 'training/selfplay.py']
     for directory in ['training', 'src', 'vendor/doomgeneric/doomgeneric']:
-        paths.extend(p for p in (ROOT / directory).iterdir() if p.suffix in {'.c', '.h'})
+        paths.extend(p for p in (ROOT / directory).iterdir() if p.suffix in {'.c', '.h', '.py'})
     for path in sorted(set(paths)):
         digest.update(str(path.relative_to(ROOT)).encode())
         digest.update(path.read_bytes())
@@ -56,12 +60,20 @@ class Arena:
             cwd=ROOT / '.cache', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log)
         self.buffer = b''
 
-    def play(self, player, enemy, seed, map_id, ticks=700):
+    def play(self, player, enemy, seed, map_id, ticks=700, player_net=None, enemy_net=None):
         for values, space in [(player, PLAYER), (enemy, ENEMY)]:
             if len(values) != len(space) or any(not isinstance(v, int) or not lo <= v <= hi
                 for v, (_, lo, hi, _) in zip(values, space)):
                 raise ValueError('Policy values are outside the allowed tactical bounds')
-        command = ' '.join(map(str, [seed, map_id, ticks, *player, *enemy])) + '\n'
+        command = ' '.join(map(str, [seed, map_id, ticks, *player, *enemy]))
+        for network in (player_net, enemy_net):
+            if network is None:
+                command += ' 0'
+            else:
+                if len(network) != 149 or any(not math.isfinite(v) or abs(v) > 4 for v in network):
+                    raise ValueError('Neural policies need 149 finite weights in [-4, 4]')
+                command += ' 1 ' + ' '.join(format(v, '.9g') for v in network)
+        command += '\n'
         self.process.stdin.write(command.encode())
         self.process.stdin.flush()
         deadline = time.monotonic() + 30
@@ -215,7 +227,7 @@ def run(args):
                     history.append(record)
                     print(f'Generation {generation:02} {role:6}: validation gain {gain:+.3f}; '
                           f'{"promoted" if accepted else "retained"}; {len(evaluator.cache)} matches', flush=True)
-                save(output / 'checkpoint.json', {'version': 2, 'fingerprint': code_hash, 'config': config,
+                save(output / 'checkpoint.json', {'version': 3, 'fingerprint': code_hash, 'config': config,
                     'generation': generation, 'player_pool': player_pool, 'enemy_pool': enemy_pool, 'history': history})
             # Held-out data is evaluated only after all selection is finished.
             cases = [(map_id, args.evaluation_base + map_id * 10000 + i) for map_id in [1, 2, 3]
@@ -237,7 +249,7 @@ def run(args):
                     for r, b in zip(raw[key], base)], args.seed)
                 unseen[role] = paired_interval([sign * (r['score'] - b['score'])
                     for r, b in zip(raw[key], base) if r['map'] == 3], args.seed)
-            result = {'version': 2, 'fingerprint': code_hash, 'config': config,
+            result = {'version': 3, 'fingerprint': code_hash, 'config': config,
                 'matches': len(evaluator.cache), 'audit_matches': 3,
                 'elapsed_seconds': time.monotonic() - started,
                 'player_parameters': [r[0] for r in PLAYER], 'enemy_parameters': [r[0] for r in ENEMY],

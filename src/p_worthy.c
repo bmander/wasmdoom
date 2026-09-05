@@ -5,12 +5,15 @@
 #include "doomstat.h"
 #include "p_local.h"
 #include "p_worthy.h"
+#include "p_policy_net.h"
 #include "r_state.h"
 #include "s_sound.h"
 
 static int enabled;
-static const worthy_policy_t default_policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100};
-static worthy_policy_t policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100};
+static policy_net_t network;
+void P_WorthySetNetwork(const float *weights) { P_PolicyNetLoad(&network, weights); }
+static const worthy_policy_t default_policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100, 288, 128, 0};
+static worthy_policy_t policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100, 288, 128, 0};
 static int bounded(int value, int low, int high)
 {
     return value < low ? low : value > high ? high : value;
@@ -28,6 +31,9 @@ void P_WorthySetPolicy(const worthy_policy_t *value)
     policy.lead = bounded(value->lead, 0, 80);
     policy.pursuit_lead = bounded(value->pursuit_lead, 0, 12);
     policy.cover_use = bounded(value->cover_use, 0, 100);
+    policy.hitscan_range = bounded(value->hitscan_range, 96, 512);
+    policy.wounded_bonus = bounded(value->wounded_bonus, -128, 192);
+    policy.pressure_fire = bounded(value->pressure_fire, 0, 1);
 }
 extern boolean P_Move(mobj_t *actor);
 extern boolean P_CheckMeleeRange(mobj_t *actor);
@@ -175,11 +181,11 @@ static void cover_destination(mobj_t *actor, int state, int duration)
 
 // Return true while this behavior owns movement/holding. FIRE falls through to
 // the ordinary attack decision, then the completed burst returns to hiding.
-static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering)
+static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering, int cover_use)
 {
     unsigned seed = personality(actor);
     if (actor->worthy.cover_state == WORTHY_OPEN) {
-        if (seed % 100 >= (unsigned)policy.cover_use) return false;
+        if (seed % 100 >= (unsigned)cover_use) return false;
         if (!visible || leveltime < actor->worthy.cover_retry
             || P_AproxDistance(actor->worthy.x - actor->x, actor->worthy.y - actor->y) < 128 * FRACUNIT)
             return false;
@@ -267,9 +273,35 @@ boolean P_WorthyChase(mobj_t *actor)
     else if (!actor->worthy.threat_since) actor->worthy.threat_since = leveltime + 1;
     boolean dodge = threatened && leveltime + 1 - actor->worthy.threat_since >= policy.dodge_reaction;
 
-    if (ranged && use_cover(actor, visible, recovering)) return true;
+    worthy_policy_t choice = policy;
+    if (network.enabled) {
+        boolean hitscan = actor->type == MT_POSSESSED || actor->type == MT_SHOTGUY
+            || actor->type == MT_CHAINGUY || actor->type == MT_SPIDER;
+        fixed_t norm = distance > FRACUNIT ? distance : FRACUNIT;
+        fixed_t ux = FixedDiv(dx, norm), uy = FixedDiv(dy, norm);
+        float features[POLICY_INPUTS] = {
+            2.0f * actor->health / actor->info->spawnhealth - 1,
+            distance / (512.0f * FRACUNIT), ranged ? 1 : -1, hitscan ? 1 : -1,
+            visible ? 1 : -1, threatened ? 1 : -1,
+            visible ? (FixedMul(ux, target->momx) + FixedMul(uy, target->momy)) / (16.0f * FRACUNIT) : 0,
+            visible ? (FixedMul(ux, target->momy) - FixedMul(uy, target->momx)) / (16.0f * FRACUNIT) : 0,
+            actor->worthy.cover_state / 4.0f,
+            (leveltime - actor->worthy.contact_time) / (8.0f * TICRATE),
+            actor->worthy.blocked / 3.0f,
+            (actor->worthy.next_attack - leveltime) / (float)TICRATE
+        }, output[POLICY_OUTPUTS];
+        P_PolicyNetEvaluate(&network, features, output);
+        choice.range = bounded(policy.range + (int)(output[0] * 192), 160, 400);
+        choice.hitscan_range = bounded(policy.hitscan_range + (int)(output[0] * 192), 96, 512);
+        choice.cover_use = bounded(policy.cover_use + (int)(output[1] * 100), 0, 100);
+        if (output[2] > .15f) choice.pressure_fire = 1;
+        if (output[2] < -.15f) choice.pressure_fire = 0;
+        choice.pursuit_lead = bounded(policy.pursuit_lead + (int)(output[3] * 12), 0, 12);
+        choice.wounded_bonus = bounded(policy.wounded_bonus + (int)(output[4] * 192), -128, 192);
+    }
+    if (ranged && use_cover(actor, visible, recovering, choice.cover_use)) return true;
     if (ranged && visible && !recovering && leveltime >= actor->worthy.next_attack
-        && (actor->worthy.cover_state == WORTHY_FIRE || !dodge || ((leveltime / 12 + seed) & 1))
+        && (choice.pressure_fire || actor->worthy.cover_state == WORTHY_FIRE || !dodge || ((leveltime / 12 + seed) & 1))
         && P_WorthyCanFire(actor) && P_CheckMissileRange(actor)) {
         actor->worthy.next_attack = leveltime + policy.attack_delay + seed % 12;
         actor->flags |= MF_JUSTATTACKED;
@@ -285,15 +317,18 @@ boolean P_WorthyChase(mobj_t *actor)
     if (distance < FRACUNIT) distance = FRACUNIT;
     fixed_t ux = FixedDiv(dx, distance), uy = FixedDiv(dy, distance);
     fixed_t gx = actor->worthy.x, gy = actor->worthy.y;
-    if (!ranged && visible && distance > 96 * FRACUNIT && policy.pursuit_lead) {
+    if (!ranged && visible && distance > 96 * FRACUNIT && choice.pursuit_lead) {
         // A learned intercept choice for melee pursuers, using observed motion.
         // The shipped policy leaves this at zero; prediction is always capped.
-        gx += bounded((int64_t)target->momx * policy.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
-        gy += bounded((int64_t)target->momy * policy.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
+        gx += bounded((int64_t)target->momx * choice.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
+        gy += bounded((int64_t)target->momy * choice.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
     }
     if (ranged && visible) {
-        int preferred = actor->type == MT_SHOTGUY ? policy.range * 2 / 3 : policy.range;
-        if (actor->health < actor->info->spawnhealth / 3) preferred += 128;
+        boolean hitscan = actor->type == MT_POSSESSED || actor->type == MT_SHOTGUY
+            || actor->type == MT_CHAINGUY || actor->type == MT_SPIDER;
+        int preferred = hitscan ? choice.hitscan_range : choice.range;
+        if (actor->type == MT_SHOTGUY) preferred = preferred * 2 / 3;
+        if (actor->health < actor->info->spawnhealth / 3) preferred += choice.wounded_bonus;
         if (distance < (preferred - 64) * FRACUNIT) {
             gx = actor->x - ux * 96; gy = actor->y - uy * 96;
         } else if (distance <= (preferred + 96) * FRACUNIT) {

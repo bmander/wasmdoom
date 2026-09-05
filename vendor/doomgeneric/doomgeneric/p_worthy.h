@@ -8,13 +8,17 @@ void P_WorthySetEnabled(int enabled);
 typedef struct {
     int range, cover_wait, cover_retry, peek_time, dodge_reaction;
     int flank, attack_delay, lead, pursuit_lead, cover_use;
+    int hitscan_range, wounded_bonus, pressure_fire;
 } worthy_policy_t;
 void P_WorthySetPolicy(const worthy_policy_t *policy);
+void P_WorthySetNetwork(const float *weights);
 boolean P_WorthyEnabled(void);
 boolean P_WorthyChase(mobj_t *actor);
 boolean P_WorthyCanFire(mobj_t *actor);
 enum { WORTHY_OPEN, WORTHY_HIDE, WORTHY_WAIT, WORTHY_PEEK, WORTHY_FIRE };
 boolean P_WorthyWalkSegment(mobj_t *actor, fixed_t x, fixed_t y, fixed_t to_x, fixed_t to_y);
+// Reset transient planning budget when starting an independent episode.
+void P_WorthyResetNavigation(void);
 boolean P_WorthyFindCover(mobj_t *actor);
 boolean P_WorthyCoverValid(mobj_t *actor);
 void P_WorthyNavigate(mobj_t *actor, fixed_t x, fixed_t y, fixed_t space_x, fixed_t space_y);

@@ -1,0 +1,14 @@
+{
+  "player": {
+    "baseline_wins": 1005,
+    "selected_wins": 1118,
+    "matches": 1152,
+    "score_gain": 0.274930296875
+  },
+  "enemy": {
+    "baseline_wins": 145,
+    "selected_wins": 174,
+    "matches": 1152,
+    "score_gain": 0.05985712239583334
+  }
+}

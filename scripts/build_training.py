@@ -16,7 +16,7 @@ command = [shutil.which('clang') or 'cc', '-O2', '-Wno-incompatible-function-poi
            '-I' + str(engine), '-I' + str(root / 'training'),
            '-DDOOMGENERIC_RESX=1280', '-DDOOMGENERIC_RESY=800', *sources,
            *[str(root / path) for path in ['src/r_resolution.c', 'src/p_worthy.c',
-             'src/p_worthy_nav.c', 'training/player_bot.c', 'training/arena.c']],
+             'src/p_policy_net.c', 'src/p_worthy_nav.c', 'training/player_bot.c', 'training/arena.c']],
            '-lm', '-o', str(binary)]
 subprocess.run(command, check=True, cwd=root)
 print(binary)

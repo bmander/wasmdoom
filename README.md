@@ -141,14 +141,14 @@ The save adapter uses Emscripten's [filesystem API](https://emscripten.org/docs/
 
 ## Offline self-play experiments
 
-The [training laboratory](training/README.md) builds a native player bot and
-trains player/enemy tactical policies against a league of past opponents. Run
-`npm run train -- --output .cache/my-experiment` to produce saved policies, raw
-match results, and an evaluation report. It requires Python and a C compiler;
-training uses neither a GPU nor the browser. Learned policies are not enabled in
-the game automatically. Browser watch mode is a future step.
-The [first experiment results](training/RESULTS.md) include successful training
-updates and the inconclusive held-out evaluation, with all raw data retained.
+The [training laboratory](training/README.md) trains player and enemy policies
+against a league of past opponents in the native engine. It supports tactical
+parameter search and small neural networks that choose tactics from visible
+combat state. Start with `npm run train:league -- --output .cache/parameters`;
+the laboratory guide covers neural training, frozen evaluation, and offline replay.
+Only Python and a C compiler are needed. Learned policies remain offline;
+browser watch mode is a future step. [Experiment results](training/RESULTS.md)
+retain both earlier inconclusive runs and the newer comparisons.
 
 ## Verification
 

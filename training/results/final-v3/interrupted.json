@@ -1,0 +1,8 @@
+{
+  "reason": "No valid combat spawn",
+  "map": 4,
+  "seed": 9040095,
+  "stage": "unseen-map evaluation",
+  "primary_evaluation_complete": true,
+  "continued_with_same_frozen_policies": "../final-v3b"
+}

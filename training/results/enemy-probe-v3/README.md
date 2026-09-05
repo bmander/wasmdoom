@@ -1,0 +1,1 @@
+Development-only one-parameter probes on 384 shared E1M1–E1M3 encounters (seed family 6,400,000). These motivated inspecting neural pursuit/range choices; they never touch the final test. The actual neural training starts from parameter-v3b without injecting these probe policies. `probe.py.txt` records the exact driver.

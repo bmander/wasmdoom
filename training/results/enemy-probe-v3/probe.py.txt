@@ -1,0 +1,21 @@
+import json
+from pathlib import Path
+from training.league import Matches, cases, model
+from training.selfplay import BASE_PLAYER, BASE_ENEMY, ENEMY, save
+output=Path('.cache/enemy-probe'); output.mkdir(exist_ok=True)
+ev=Matches(output,2)
+base=model(BASE_ENEMY); player=model(BASE_PLAYER)
+encounters=cases(6400000,128)
+try:
+    ref=ev.fitness('enemy',base,[player],encounters,'diagnostic')
+    rows=[]
+    for i,(name,lo,hi,default) in enumerate(ENEMY):
+        for value in sorted(set([lo,hi])):
+            if value==default:continue
+            params=list(BASE_ENEMY);params[i]=value
+            candidate=model(params)
+            score=ev.fitness('enemy',candidate,[player],encounters,'diagnostic')
+            rows.append({'parameter':name,'value':value,'gain':score-ref,'policy':candidate})
+            print(name,value,round(score-ref,4),flush=True)
+    save(output/'summary.json',sorted(rows,key=lambda r:r['gain'],reverse=True))
+finally:ev.close()

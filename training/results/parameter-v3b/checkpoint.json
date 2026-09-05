@@ -1,0 +1,594 @@
+{
+  "version": 3,
+  "fingerprint": "52eb4efd5b317e5f26ff006f866735df9fc3aa94ff235f1b376e1f04d0f0b490",
+  "config": {
+    "output": "training/results/parameter-v3b",
+    "initial": null,
+    "neural": false,
+    "generations": 8,
+    "population": 48,
+    "screen_cases": 24,
+    "train_cases": 96,
+    "validation_cases": 192,
+    "development_base": 3000000,
+    "seed": 20260906,
+    "workers": 4
+  },
+  "policies": {
+    "player": {
+      "params": [
+        105,
+        40,
+        22,
+        50,
+        58,
+        12,
+        121,
+        1641,
+        299,
+        279
+      ],
+      "network": null
+    },
+    "enemy": {
+      "params": [
+        294,
+        19,
+        73,
+        31,
+        7,
+        68,
+        24,
+        68,
+        0,
+        99,
+        277,
+        134,
+        0
+      ],
+      "network": null
+    }
+  },
+  "pools": {
+    "player": [
+      {
+        "params": [
+          192,
+          12,
+          25,
+          25,
+          50,
+          4,
+          70,
+          1024,
+          0,
+          0
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          96,
+          10,
+          12,
+          41,
+          90,
+          10,
+          140,
+          2048,
+          346,
+          361
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          96,
+          19,
+          12,
+          41,
+          90,
+          10,
+          140,
+          2048,
+          346,
+          361
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          96,
+          40,
+          12,
+          50,
+          63,
+          12,
+          140,
+          1325,
+          287,
+          342
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          164,
+          30,
+          26,
+          50,
+          64,
+          12,
+          114,
+          1531,
+          319,
+          300
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          105,
+          40,
+          22,
+          50,
+          58,
+          12,
+          121,
+          1641,
+          299,
+          279
+        ],
+        "network": null
+      }
+    ],
+    "enemy": [
+      {
+        "params": [
+          288,
+          20,
+          70,
+          35,
+          6,
+          64,
+          24,
+          66,
+          0,
+          100,
+          288,
+          128,
+          0
+        ],
+        "network": null
+      },
+      {
+        "params": [
+          294,
+          19,
+          73,
+          31,
+          7,
+          68,
+          24,
+          68,
+          0,
+          99,
+          277,
+          134,
+          0
+        ],
+        "network": null
+      }
+    ]
+  },
+  "history": [
+    {
+      "generation": 1,
+      "role": "player",
+      "gain": 0.25862153819444444,
+      "anchor_gain": 0.25862153819444444,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          96,
+          10,
+          12,
+          41,
+          90,
+          10,
+          140,
+          2048,
+          346,
+          361
+        ],
+        "network": null
+      },
+      "incumbent": "9c533ba5e0a2a4a36eac"
+    },
+    {
+      "generation": 1,
+      "role": "enemy",
+      "gain": 0.0064767873263889,
+      "anchor_gain": -0.0002607031250000391,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          390,
+          43,
+          61,
+          42,
+          6,
+          65,
+          24,
+          70,
+          0,
+          23,
+          199,
+          192,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 2,
+      "role": "player",
+      "gain": 0.06295757118055545,
+      "anchor_gain": 0.06295757118055545,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          96,
+          19,
+          12,
+          41,
+          90,
+          10,
+          140,
+          2048,
+          346,
+          361
+        ],
+        "network": null
+      },
+      "incumbent": "efdd5d2892de301c637b"
+    },
+    {
+      "generation": 2,
+      "role": "enemy",
+      "gain": 0.002120460069444441,
+      "anchor_gain": -0.0052309375000000324,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          229,
+          20,
+          70,
+          35,
+          6,
+          64,
+          24,
+          66,
+          0,
+          100,
+          288,
+          128,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 3,
+      "role": "player",
+      "gain": -0.03650134548611117,
+      "anchor_gain": -0.03650134548611117,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          97,
+          14,
+          19,
+          47,
+          58,
+          9,
+          140,
+          1989,
+          231,
+          349
+        ],
+        "network": null
+      },
+      "incumbent": "3ae034700cb3b5913419"
+    },
+    {
+      "generation": 3,
+      "role": "enemy",
+      "gain": -0.0051783506944445,
+      "anchor_gain": -0.008501309027777793,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          166,
+          12,
+          35,
+          64,
+          6,
+          0,
+          24,
+          80,
+          7,
+          71,
+          96,
+          192,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 4,
+      "role": "player",
+      "gain": 0.024079753472222354,
+      "anchor_gain": 0.024079753472222354,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          96,
+          40,
+          12,
+          50,
+          63,
+          12,
+          140,
+          1325,
+          287,
+          342
+        ],
+        "network": null
+      },
+      "incumbent": "3ae034700cb3b5913419"
+    },
+    {
+      "generation": 4,
+      "role": "enemy",
+      "gain": -0.015159602430555585,
+      "anchor_gain": -0.0430056875,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          160,
+          12,
+          89,
+          18,
+          14,
+          36,
+          29,
+          80,
+          0,
+          100,
+          512,
+          -71,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 5,
+      "role": "player",
+      "gain": 0.0012996302083332356,
+      "anchor_gain": 0.0012996302083332356,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          96,
+          40,
+          12,
+          50,
+          63,
+          12,
+          81,
+          1325,
+          287,
+          342
+        ],
+        "network": null
+      },
+      "incumbent": "6169d48ada6a00a00131"
+    },
+    {
+      "generation": 5,
+      "role": "enemy",
+      "gain": 0.007681320312499906,
+      "anchor_gain": 0.01473839062499993,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          294,
+          19,
+          73,
+          31,
+          7,
+          68,
+          24,
+          68,
+          0,
+          99,
+          277,
+          134,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "95d418146f78603a3a8a"
+    },
+    {
+      "generation": 6,
+      "role": "player",
+      "gain": 0.006510147569444458,
+      "anchor_gain": 0.009605048611111,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          164,
+          30,
+          26,
+          50,
+          64,
+          12,
+          114,
+          1531,
+          319,
+          300
+        ],
+        "network": null
+      },
+      "incumbent": "6169d48ada6a00a00131"
+    },
+    {
+      "generation": 6,
+      "role": "enemy",
+      "gain": -0.01875670081018499,
+      "anchor_gain": -0.042362387152777736,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          384,
+          12,
+          79,
+          49,
+          6,
+          96,
+          25,
+          72,
+          0,
+          100,
+          380,
+          119,
+          1
+        ],
+        "network": null
+      },
+      "incumbent": "d467eeec16fa1db610dd"
+    },
+    {
+      "generation": 7,
+      "role": "player",
+      "gain": 0.027812980034722212,
+      "anchor_gain": 0.008574062499999924,
+      "accepted": true,
+      "candidate": {
+        "params": [
+          105,
+          40,
+          22,
+          50,
+          58,
+          12,
+          121,
+          1641,
+          299,
+          279
+        ],
+        "network": null
+      },
+      "incumbent": "e0c2983a827ca001e43b"
+    },
+    {
+      "generation": 7,
+      "role": "enemy",
+      "gain": -0.006717329861110954,
+      "anchor_gain": -0.022546736111111132,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          182,
+          19,
+          73,
+          31,
+          7,
+          68,
+          24,
+          68,
+          0,
+          99,
+          277,
+          134,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "d467eeec16fa1db610dd"
+    },
+    {
+      "generation": 8,
+      "role": "player",
+      "gain": 0.0028291215277778115,
+      "anchor_gain": 0.009747869791666641,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          105,
+          40,
+          22,
+          50,
+          58,
+          12,
+          113,
+          1641,
+          299,
+          279
+        ],
+        "network": null
+      },
+      "incumbent": "92cb30edb436d12bd8e6"
+    },
+    {
+      "generation": 8,
+      "role": "enemy",
+      "gain": -0.011204722800925992,
+      "anchor_gain": -0.040884987847222165,
+      "accepted": false,
+      "candidate": {
+        "params": [
+          400,
+          17,
+          35,
+          18,
+          16,
+          96,
+          24,
+          76,
+          2,
+          8,
+          139,
+          68,
+          0
+        ],
+        "network": null
+      },
+      "incumbent": "d467eeec16fa1db610dd"
+    }
+  ],
+  "matches": 162792,
+  "elapsed_seconds": 404.48759019898716,
+  "development_audit": {
+    "player": {
+      "baseline_wins": 997,
+      "selected_wins": 1129,
+      "matches": 1152,
+      "score_gain": 0.3088114852430556
+    },
+    "enemy": {
+      "baseline_wins": 151,
+      "selected_wins": 162,
+      "matches": 1152,
+      "score_gain": 0.019910167534722228
+    }
+  }
+}

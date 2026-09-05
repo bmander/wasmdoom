@@ -1,116 +1,136 @@
-# Offline self-play laboratory
+# Offline policy laboratory
 
-The player bot and enemy policies fight short combat drills in the **actual native
-DOOM engine**. Neither rendering nor a browser is needed for training. This is
-gradient-free search over tactical parameters in existing controllers, not a
-neural network learning from pixels. Trained policies are experiment artifacts;
-the browser continues to use the original Worthy Adversaries settings.
+Player bots and enemy teams train in the actual native DOOM engine. The lab now
+supports **parameter search and neural policies**. Both use CPU mutation and
+selection against a league of opponents; neither needs Python packages, a GPU,
+or a browser. Learned policies remain offline artifacts. Browser watch mode is
+future work, and the playable site's Worthy Adversaries defaults stay unchanged.
 
-Read [the first two experiments and their findings](RESULTS.md).
+Read [results](RESULTS.md) and the [frozen evaluation protocol](PROTOCOL.md).
+
+## Run an experiment
+
+Python 3 and a C compiler are sufficient; the trainer builds the arena.
 
 ```sh
-npm run train -- --output .cache/my-experiment
+# First improve the parameter controllers.
+npm run train:league -- --output .cache/parameters
+
+# Then train state-dependent neural adjustments to those controllers.
+npm run train:league -- --neural --initial .cache/parameters/checkpoint.json \
+  --development-base 5000000 --output .cache/neural
+
+# Freeze both checkpoints and evaluate on a fresh seed family.
+# Choose a NEW --base for subsequent experiments; 9000000 belongs to version 3.
+npm run train:evaluate -- --parameters .cache/parameters/checkpoint.json \
+  --neural .cache/neural/checkpoint.json --base 11000000 --output .cache/evaluation
+
 npm run test:training
+npm run test:ai
 ```
 
-Python 3 and a C compiler are sufficient. The command automatically compiles the
-arena, then saves `checkpoint.json`, `summary.json`, `matches.jsonl`, and a
-self-contained `report.html`. Open the HTML file directly in a browser. Choose a
-new output directory for every run; existing experiments are preserved.
+Each command needs an empty output directory. Four native worker processes are
+used by default (`--workers` changes this). `--generations`, `--population`,
+`--screen-cases`, `--train-cases`, and `--validation-cases` control the budget.
+Case counts are **per map**. A checkpoint can initialize a subsequent run; this
+starts a new search with a new RNG, rather than resuming an interrupted search.
+The earlier optimizer remains available as `npm run train`.
 
-For the larger second experiment:
+## Neural policies
 
-```sh
-npm run train -- --generations 16 --population 20 --train-seeds 16 \
-  --validation-seeds 64 --evaluation-seeds 64 --evaluation-base 2000000 \
-  --output .cache/validated-experiment
-```
+Each side has its own **12-input, 8-hidden-unit, 5-output tanh MLP**, with 149
+trainable weights and biases. Native C performs inference. All weights are bounded
+in [-4, 4]; inputs are clipped to [-1, 1]. Initial hidden weights are random and
+output weights are zero, so initialization exactly preserves the parent
+controller. Evolution mutates hidden connections, output connections, and biases;
+it also tries bias-only children. There is no backpropagation or imitation data.
 
-## What learns
+These are residual tactical networks: they modulate an existing controller,
+which still handles aiming, navigation, cover, and legal actions. This experiment
+does not learn those engine skills from scratch or learn from pixels.
 
-- **Player:** preferred range, lateral movement, advance/retreat speed, aim
-  response, firing tolerance, strafe direction timing, and turning speed.
-- **Enemies:** preferred range, cover wait/retry/peek timing, dodge reaction,
-  approach offset, attack delay, projectile lead, melee interception, and
-  willingness to seek cover. The same enemy policy controls the encounter's team;
-  existing monster roles and per-spawn personalities still vary their behavior.
-- Health, damage, monster movement speeds, weapons, collision, and attack
-  animations retain normal DOOM rules. Player commands stay within ordinary
-  movement input bounds. Faster-than-default monster attacks are not allowed.
+| Side | 12 observations, in input order | 5 outputs, in output order |
+| --- | --- | --- |
+| Player | Own health; pistol ammunition; nearest visible enemy distance, health, demon flag, hitscan flag; visible count; visibility flag; bearing error; visible enemy x/y velocity; contact age | Range, strafe amount, low-health target priority, hitscan target priority, aim response |
+| Enemy | Own health; remembered distance; ranged flag; hitscan flag; visibility; under aimed fire; visible target radial/tangential velocity; cover state; contact age; blocked steps; attack cooldown | Range, willingness to seek cover, return fire under pressure, melee intercept lead, wounded spacing adjustment |
 
-The player bot observes visible enemies at 8.75 Hz and remembers their last
-observed position. Enemy awareness uses the existing sight/sound memory. Both
-use structured world coordinates and geometry queries; neither controller reads
-the current position of an occluded opponent to choose its next destination.
-This deliberately avoids the much larger problem of learning visual perception.
+Player observations refresh every four game ticks (8.75 Hz). Enemy inference runs
+at chase decisions. Hidden opponents' current coordinates and velocity are not
+inputs; missing player observations are masked, and enemies use remembered
+locations. Both controllers can query map geometry.
 
-## Encounters and scoring
+The flat checkpoint layout contains eight blocks of `[hidden bias, 12 weights]`,
+then five blocks of `[output bias, 8 weights]`. The `network` field is null for
+parameter-only controllers. The parameter array follows `PLAYER` or `ENEMY` in
+[selfplay.py](selfplay.py). A zero-output network reproduces the parent controller.
 
-Each encounter loads E1M1 or E1M2, clears the existing things, and places two or
-three ordinary monsters in valid visible positions around the player start. The
-mixture includes zombies, shotgun zombies, imps, and demons. The player starts
-with the normal pistol, ammunition, and health. There are no artificial arenas or
-replacement combat physics; these are combat drills in existing map geometry,
-rather than full-level completion tasks. A separate deterministic scenario RNG
-chooses spawns, and DOOM's gameplay RNG is seeded for each match.
+The parameter search can additionally choose advance/retreat speed, firing
+threshold, turn limits, strafe timing, cover timing, dodge reaction, flank offset,
+attack spacing and projectile lead. Health, damage, monster speed, attack
+animations, and weapons retain normal DOOM values. Player commands stay within
+ordinary input bounds; attack delays cannot be faster than the shipped default.
 
-A player win requires killing every opponent. Player death is a loss. Reaching
-the time limit is a draw. The player reward is:
+## Encounters and selection
+
+Each drill clears map things and places two or three ordinary zombies, shotgun
+zombies, imps, or demons around the player start. The player begins with a pistol,
+50 bullets, and 100 health. Geometry, collision, damage, infighting, and drops are
+normal DOOM behavior. Crowded layouts retry before combat using a separate,
+deterministic scenario RNG. Evaluation preflight logs any still-impossible layout
+and takes the next seed on that map; it never rejects a combat outcome. The episode lasts at most 700 ticks (20 seconds).
+
+Killing all enemies is a player win, player death is an enemy win, and a timeout
+is a draw. The player score is:
 
 ```
 win/loss/draw (+1/-1/0)
   + 0.25 × (fraction of enemy health removed - fraction of player health lost)
 ```
 
-Enemy reward is its exact negative. The smaller health term provides feedback
-between decisive outcomes, without rewarding time spent alive. Infighting and
-normal enemy drops remain possible under the engine's rules. Reports show draws
-separately so stalling cannot be mistaken for winning.
+Enemy score is its exact negative. Reports show wins and draws alongside scores,
+so simply stalling cannot count as winning.
 
-## Selection and evaluation
+Version 3 develops on E1M1–E1M3. Candidates share scenarios, the best six advance
+to a larger batch, and the winning candidate faces separate validation encounters.
+Opponents include the original controller, the latest adversary, and, after enough
+promotions, a historical adversary. Promotion requires a positive league score
+gain and no score regression against the original opponent on validation.
 
-Each generation alternates a player update and an enemy update. Mutated children
-and their incumbent face identical scenarios and a small league: the original
-opponent, the latest opponent, and a sampled historical opponent. Duplicate
-policies are removed from that mixture. The best child is tested on a separate
-validation batch. It is promoted only if its average score improves and its
-score against the original opponent does not regress on that batch.
+Final evaluation is a separate command that saves `frozen.json` **before** playing
+any tests. Both sides face the same original opponent on paired fresh scenarios;
+trained-versus-trained results are also reported. Paired 97.5% bootstrap intervals
+measure score and win-rate differences. E1M4–E1M5 test unseen geometry. Neural
+policies are additionally compared with the parameter pair and an ablation that
+zeros input connections while preserving all biases and output weights.
 
-The final checkpoint is chosen entirely before final evaluation. The evaluation
-uses fresh seeds on E1M1, E1M2, and E1M3; E1M3 is not used for training or
-promotion. Initial, middle, and final policies play a cross-match matrix. Paired
-bootstrap intervals compare final and initial policies against the same original
-opponent and encounters. `unseen_map_improvement` reports E1M3 separately.
+A gain over the original controller alone cannot establish a benefit from neural
+adaptation. These are short drills near five map starts, not full-level completion
+or evidence of improved play against humans. If final results inform a subsequent
+experiment, preserve them and declare another test seed family first.
 
-Final evaluation never feeds back into policy selection. If its results inform
-a new experiment design, use a new `--evaluation-base` and preserve the earlier
-run. A positive score change is not proof of broader competence; interval width,
-draw rates, opponent diversity, and unseen-map results all matter. The first
-experiment used much smaller selection batches and is retained as a negative
-result for enemy generalization.
+## Artifacts and replay
 
-The algorithm is simple mutation and selection, related to the policy-search
-approach explored in [Evolution Strategies as a Scalable Alternative to
-Reinforcement Learning](https://arxiv.org/abs/1703.03864). It is not an
-implementation or reproduction of that paper's algorithm.
+Training saves `checkpoint.json`, `development.json`, `models.json`, and
+`matches.jsonl`; evaluation saves `frozen.json`, `summary.json`, `models.json`, and
+`matches.jsonl`. Model IDs in match logs resolve through `models.json`. Published
+large logs are losslessly compressed as `matches.jsonl.gz`. Run manifests record
+compiler/platform information and source fingerprints; native floating-point
+results can differ across platforms.
 
-## Artifacts and reproduction
+To replay a logged encounter offline:
 
-- [First experiment](results/first-run/report.html): version 1, eight enemy
-  parameters, four encounters per opponent for both selection and validation.
-  Its exact code is commit `f54f15f`; use that revision to reproduce its format.
-- [Larger validation experiment](results/validated-run/report.html): version 2,
-  adds learnable melee interception and cover use, more encounters per opponent,
-  and a check against forgetting the original opponent. Multiple design changes
-  mean this is a follow-up experiment, not an isolated causal comparison.
+```python
+from training.selfplay import Arena
+# p/e are the model dictionaries referenced by the match's player/enemy IDs.
+with Arena() as arena:
+    result = arena.play(p['params'], e['params'], seed, map_id,
+                        player_net=p['network'], enemy_net=e['network'])
+```
 
-Each result records its configuration, parameter names, league, promotions, raw
-outcomes, and a SHA-256 fingerprint of the engine/trainer/IWAD sources. Repeating
-an encounter after an unrelated match must produce the identical result; the
-trainer checks this before selection. Native results can depend on compiler and
-platform, so exact reproduction should use the same build environment.
+The integration suite checks neural effects, neutral-network equivalence, invalid
+weights, independent episode resets, crowded-layout recovery, parallel log replay, explicit invalid-layout admission,
+and the full train/freeze/evaluate pipeline using separate smoke-test seeds (plus the exact invalid-layout regression seed).
 
-Checkpoints contain policy data for subsequent experiments and a future browser
-watch mode. Resuming an interrupted optimizer and replaying a match in the browser
-are not implemented yet. To replay an individual result offline, pass its player
-and enemy vectors, map, seed, and duration to `training.selfplay.Arena.play`.
+Earlier artifacts retain their original schemas: version 1 is reproduced at
+commit `f54f15f`, and version 2 at `96ec34a`. See their reports under
+`results/first-run` and `results/validated-run`.

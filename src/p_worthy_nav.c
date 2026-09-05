@@ -22,6 +22,12 @@ extern fixed_t xspeed[8], yspeed[8];
 // synchronous and capped globally so large crowds cannot all plan in one tic.
 static struct { int cost, parent; unsigned char state; } nav_nodes[GRID * GRID];
 static int budget_time = -1, plans;
+void P_WorthyResetNavigation(void)
+{
+    budget_time = -1;
+    plans = 0;
+}
+
 static boolean planning_budget(void)
 {
     if (budget_time != leveltime) { budget_time = leveltime; plans = 0; }
