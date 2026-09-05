@@ -1,3 +1,4 @@
+// WasmDOOM: read-only navigation geometry probes, 2026-09-05. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -223,6 +224,8 @@ extern	line_t*	spechit[MAXSPECIALCROSS];
 extern	int	numspechit;
 
 boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y);
+// WasmDOOM: read-only geometry probe, with normal floor/ceiling outputs.
+boolean P_CheckPositionGeometry(mobj_t *thing, fixed_t x, fixed_t y);
 boolean P_TryMove (mobj_t* thing, fixed_t x, fixed_t y);
 boolean P_TeleportMove (mobj_t* thing, fixed_t x, fixed_t y);
 void	P_SlideMove (mobj_t* mo);

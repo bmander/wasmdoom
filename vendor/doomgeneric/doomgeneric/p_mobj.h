@@ -281,8 +281,12 @@ typedef struct mobj_s
     // WasmDOOM: transient tactical memory. Deliberately not in the save format;
     // loading reacquires awareness through the normal sight/sound mechanisms.
     struct {
-        int known, contact_time, next_attack, threat_since, detour;
-        fixed_t x, y;
+        int known, contact_time, next_attack, threat_since;
+        fixed_t x, y, z;
+        int route_count, route_index, route_retry, blocked;
+        fixed_t goal_x, goal_y, route_x[32], route_y[32];
+        int cover_state, cover_until, cover_retry, cover_check, cover_cycles;
+        fixed_t hide_x, hide_y, peek_x, peek_y;
     } worthy;
     
 } mobj_t;

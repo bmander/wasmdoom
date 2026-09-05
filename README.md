@@ -53,9 +53,16 @@ site where they were created; localhost saves are separate from the hosted site.
   ceilings, and sprites are rasterized at the selected resolution.
 - Changing tabs or focusing another application pauses the game.
 - **Worthy adversaries** is an optional checkbox you can toggle before or during
-  play. The choice is remembered in this browser. Ranged enemies maintain space,
-  flank in different approach lanes, and separate from nearby allies. Melee
-  monsters still close in. Wounded ranged enemies favor more distance.
+  play. The choice is remembered in this browser. Ranged enemies maintain space
+  and look for reachable cover with a nearby firing position. They hide briefly,
+  peek out, fire a burst, and return to cover, reconsidering after three cycles.
+  Cover stops being useful when a new sighting or sound reveals a flanking player.
+  Wounded ranged enemies favor more distance.
+- All enemies use committed waypoints around nearby obstacles. Demons pursue
+  directly without combat strafing; ranged enemies hold useful firing positions
+  instead of constantly circling. Nearby allies yield space and avoid reserving
+  the same cover spot. Blocked monsters wait or replan instead of cycling through
+  backward steps. Movement still uses ordinary DOOM collision and door rules.
 - With the mod enabled, sustained visible fire prompts a sidestep after a short
   reaction delay. Enemies avoid obstructed firing lanes; projectiles partially
   lead visible moving players, with a capped prediction that changing direction
@@ -121,8 +128,13 @@ headers; see `vendor/UPSTREAM.md`. The save format is retained.
 Optional tactical enemy behavior is implemented in `src/p_worthy.c`, hooked into
 enemy chase, shot checks, sound reports, and missile aiming. Small per-monster
 memories are initialized on spawn/load and never hold extra object pointers.
-Neighbor spacing uses bounded blockmap searches; the mod does not need a server,
-AI service, or additional assets.
+`src/p_worthy_nav.c` provides bounded local A* routes and reachable cover searches.
+Routes account for body width, steps, drop-offs, and ceiling clearance, with a
+global limit of two searches per game tic and 256 expanded nodes per search.
+Closed doors remain subject to normal monster door use. Cover visibility probes
+use the last observed/heard player position and require a hidden position plus a
+short, walkable path to an exposed position. Neighbor spacing uses bounded
+blockmap searches; the mod does not need a server, AI service, or extra assets.
 
 Mouse capture uses the browser's [Pointer Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API).
 The save adapter uses Emscripten's [filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html).
@@ -151,7 +163,10 @@ The browser suite also exercises the adversary checkbox, persistence, live
 toggle, combat, and save/load. `test:ai` uses a local C compiler to run tactical
 scenarios against the actual DOOM engine and E1M1 geometry: stock/demo behavior,
 ranged retreat, melee pursuit, obstructed firing lanes, spacing, bounded missile
-prediction, invisibility, reaction time, and loss of visual contact.
+prediction, invisibility, reaction time, and loss of visual contact. They also
+run complete cover/fire/return cycles and demon routes around real E1M1 corners,
+check that hidden player movement cannot change cover estimates, and verify that
+navigation probes never move or damage actors.
 
 ## Sources and licensing
 

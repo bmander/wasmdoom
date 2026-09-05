@@ -1,3 +1,4 @@
+// WasmDOOM: read-only navigation geometry probes, 2026-09-05. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard, Andrey Budko
@@ -203,6 +204,7 @@ static void SpechitOverrun(line_t *ld);
 // PIT_CheckLine
 // Adjusts tmfloorz and tmceilingz as lines are contacted
 //
+static boolean geometry_probe;
 boolean PIT_CheckLine (line_t* ld)
 {
     if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
@@ -254,7 +256,7 @@ boolean PIT_CheckLine (line_t* ld)
 	tmdropoffz = lowfloor;
 		
     // if contacted a special line, add it to the list
-    if (ld->special)
+    if (ld->special && !geometry_probe)
     {
         spechit[numspechit] = ld;
 	numspechit++;
@@ -398,11 +400,13 @@ boolean PIT_CheckThing (mobj_t* thing)
 //  speciallines[]
 //  numspeciallines
 //
-boolean
-P_CheckPosition
+// WasmDOOM: geometry-only navigation probes never touch actors or specials.
+static boolean
+P_CheckPositionInternal
 ( mobj_t*	thing,
   fixed_t	x,
-  fixed_t	y )
+  fixed_t	y,
+  boolean       geometry_only )
 {
     int			xl;
     int			xh;
@@ -414,6 +418,7 @@ P_CheckPosition
 
     tmthing = thing;
     tmflags = thing->flags;
+    geometry_probe = geometry_only;
 	
     tmx = x;
     tmy = y;
@@ -449,7 +454,7 @@ P_CheckPosition
     yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
     yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
 
-    for (bx=xl ; bx<=xh ; bx++)
+    for (bx=xl ; !geometry_only && bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
 	    if (!P_BlockThingsIterator(bx,by,PIT_CheckThing))
 		return false;
@@ -466,6 +471,18 @@ P_CheckPosition
 		return false;
 
     return true;
+}
+
+boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
+{
+    return P_CheckPositionInternal(thing, x, y, false);
+}
+
+boolean P_CheckPositionGeometry(mobj_t *thing, fixed_t x, fixed_t y)
+{
+    boolean result = P_CheckPositionInternal(thing, x, y, true);
+    geometry_probe = false;
+    return result;
 }
 
 
@@ -1445,4 +1462,3 @@ static void SpechitOverrun(line_t *ld)
             break;
     }
 }
-

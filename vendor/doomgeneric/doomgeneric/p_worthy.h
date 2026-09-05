@@ -7,6 +7,11 @@ void P_WorthySetEnabled(int enabled);
 boolean P_WorthyEnabled(void);
 boolean P_WorthyChase(mobj_t *actor);
 boolean P_WorthyCanFire(mobj_t *actor);
+enum { WORTHY_OPEN, WORTHY_HIDE, WORTHY_WAIT, WORTHY_PEEK, WORTHY_FIRE };
+boolean P_WorthyWalkSegment(mobj_t *actor, fixed_t x, fixed_t y, fixed_t to_x, fixed_t to_y);
+boolean P_WorthyFindCover(mobj_t *actor);
+boolean P_WorthyCoverValid(mobj_t *actor);
+void P_WorthyNavigate(mobj_t *actor, fixed_t x, fixed_t y, fixed_t space_x, fixed_t space_y);
 void P_WorthyNoise(mobj_t *target);
 void P_WorthyAim(mobj_t *source, mobj_t *target, fixed_t speed,
                 fixed_t *x, fixed_t *y);

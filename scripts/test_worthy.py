@@ -14,7 +14,7 @@ binary = root / '.cache/worthy-tests'
 binary.parent.mkdir(exist_ok=True)
 command = [shutil.which('clang') or 'cc', '-O1', '-Wno-incompatible-function-pointer-types',
            '-I' + str(engine), '-DDOOMGENERIC_RESX=1280', '-DDOOMGENERIC_RESY=800',
-           *sources, str(root / 'src/r_resolution.c'), str(root / 'src/p_worthy.c'),
+           *sources, str(root / 'src/r_resolution.c'), str(root / 'src/p_worthy.c'), str(root / 'src/p_worthy_nav.c'),
            str(root / 'tests/worthy_engine.c'), '-lm', '-o', str(binary)]
 subprocess.run(command, check=True, cwd=root)
 subprocess.run([str(binary), '-iwad', str(root / 'public/assets/doom1.wad'),

@@ -45,6 +45,7 @@ static void remember(mobj_t *actor, mobj_t *target)
     actor->worthy.known = 1;
     actor->worthy.x = target->x;
     actor->worthy.y = target->y;
+    actor->worthy.z = target->z;
     actor->worthy.contact_time = leveltime;
 }
 
@@ -67,6 +68,8 @@ void P_WorthyNoise(mobj_t *target)
 boolean P_WorthyCanFire(mobj_t *actor)
 {
     if (!eligible(actor)) return true;
+    if (actor->worthy.cover_state == WORTHY_FIRE
+        && leveltime > actor->worthy.cover_until) return false;
     if (!P_CheckSight(actor, actor->target)) return false;
     angle_t angle = R_PointToAngle2(actor->x, actor->y, actor->target->x, actor->target->y);
     P_AimLineAttack(actor, angle, MISSILERANGE);
@@ -133,6 +136,75 @@ static void find_spacing(mobj_t *actor)
             P_BlockThingsIterator(x, y, separate);
 }
 
+static void abandon_cover(mobj_t *actor)
+{
+    actor->worthy.cover_state = WORTHY_OPEN;
+    actor->worthy.cover_retry = leveltime + 2 * TICRATE;
+    actor->worthy.route_count = actor->worthy.route_index = 0;
+}
+
+static void cover_destination(mobj_t *actor, int state, int duration)
+{
+    actor->worthy.cover_state = state;
+    actor->worthy.cover_until = leveltime + duration;
+    actor->worthy.route_count = actor->worthy.route_index = 0;
+}
+
+// Return true while this behavior owns movement/holding. FIRE falls through to
+// the ordinary attack decision, then the completed burst returns to hiding.
+static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering)
+{
+    unsigned seed = personality(actor);
+    if (actor->worthy.cover_state == WORTHY_OPEN) {
+        if (!visible || leveltime < actor->worthy.cover_retry
+            || P_AproxDistance(actor->worthy.x - actor->x, actor->worthy.y - actor->y) < 128 * FRACUNIT)
+            return false;
+        actor->worthy.cover_retry = leveltime + 2 * TICRATE + seed % TICRATE;
+        if (!P_WorthyFindCover(actor)) return false;
+        actor->worthy.cover_state = WORTHY_HIDE;
+        actor->worthy.cover_until = leveltime + 4 * TICRATE;
+        actor->worthy.cover_check = leveltime + 12;
+        actor->worthy.cover_cycles = 0;
+    }
+    if (leveltime >= actor->worthy.cover_check) {
+        actor->worthy.cover_check = leveltime + 12;
+        if (!P_WorthyCoverValid(actor)) { abandon_cover(actor); return false; }
+    }
+    if (actor->worthy.cover_state == WORTHY_FIRE) {
+        if (recovering || leveltime >= actor->worthy.cover_until) {
+            actor->worthy.cover_cycles++;
+            cover_destination(actor, WORTHY_HIDE, 3 * TICRATE);
+        } else {
+            actor->movedir = 8;
+            return false;
+        }
+    }
+    if (actor->worthy.cover_state == WORTHY_WAIT) {
+        actor->movedir = 8;
+        if (visible) { abandon_cover(actor); return false; }
+        if (leveltime < actor->worthy.cover_until) return true;
+        if (actor->worthy.cover_cycles >= 3) { abandon_cover(actor); return false; }
+        cover_destination(actor, WORTHY_PEEK, 2 * TICRATE);
+    }
+    boolean hiding = actor->worthy.cover_state == WORTHY_HIDE;
+    fixed_t gx = hiding ? actor->worthy.hide_x : actor->worthy.peek_x;
+    fixed_t gy = hiding ? actor->worthy.hide_y : actor->worthy.peek_y;
+    fixed_t reach = (actor->info->speed + 4) * FRACUNIT;
+    if (P_AproxDistance(gx - actor->x, gy - actor->y) <= reach) {
+        if (hiding) {
+            if (visible) { abandon_cover(actor); return false; }
+            cover_destination(actor, WORTHY_WAIT, 20 + seed % 23);
+        } else {
+            cover_destination(actor, WORTHY_FIRE, TICRATE);
+        }
+        actor->movedir = 8;
+        return actor->worthy.cover_state != WORTHY_FIRE;
+    }
+    if (leveltime >= actor->worthy.cover_until) { abandon_cover(actor); return false; }
+    P_WorthyNavigate(actor, gx, gy, 0, 0);
+    return true;
+}
+
 boolean P_WorthyChase(mobj_t *actor)
 {
     if (!eligible(actor)) return false;
@@ -140,8 +212,9 @@ boolean P_WorthyChase(mobj_t *actor)
     boolean visible = P_CheckSight(actor, target);
     if (visible) remember(actor, target);
     if (!actor->worthy.known || leveltime - actor->worthy.contact_time > 8 * TICRATE) {
-        // No through-wall tracking. Wait for a new sighting or audible report.
         actor->movedir = 8;
+        actor->worthy.cover_state = WORTHY_OPEN;
+        actor->worthy.route_count = actor->worthy.route_index = 0;
         return true;
     }
 
@@ -154,77 +227,61 @@ boolean P_WorthyChase(mobj_t *actor)
     boolean recovering = (actor->flags & MF_JUSTATTACKED) != 0;
     actor->flags &= ~MF_JUSTATTACKED;
 
-    // Retain the normal attack animations, hit chances, damage, and cooldown.
     if (visible && actor->info->meleestate && P_CheckMeleeRange(actor)) {
+        abandon_cover(actor);
         if (actor->info->attacksound) S_StartSound(actor, actor->info->attacksound);
         P_SetMobjState(actor, actor->info->meleestate);
         return true;
     }
 
-    // Recognize sustained, visible fire after ~170ms, never read future inputs.
+    // Demons commit to closing distance. Reactive strafing is a ranged tactic.
     angle_t to_actor = R_PointToAngle2(target->x, target->y, actor->x, actor->y);
     int32_t difference = (int32_t)(to_actor - target->angle);
-    boolean threatened = visible && target->player->attackdown
+    boolean threatened = ranged && visible && target->player->attackdown
         && difference > -(int32_t)(ANG45 / 2) && difference < (int32_t)(ANG45 / 2);
     if (!threatened) actor->worthy.threat_since = 0;
     else if (!actor->worthy.threat_since) actor->worthy.threat_since = leveltime + 1;
     boolean dodge = threatened && leveltime + 1 - actor->worthy.threat_since >= 6;
 
+    if (ranged && use_cover(actor, visible, recovering)) return true;
     if (ranged && visible && !recovering && leveltime >= actor->worthy.next_attack
-        && (!dodge || ((leveltime / 12 + seed) & 1))
+        && (actor->worthy.cover_state == WORTHY_FIRE || !dodge || ((leveltime / 12 + seed) & 1))
         && P_WorthyCanFire(actor) && P_CheckMissileRange(actor)) {
         actor->worthy.next_attack = leveltime + 24 + seed % 12;
         actor->flags |= MF_JUSTATTACKED;
         P_SetMobjState(actor, actor->info->missilestate);
         return true;
     }
-
+    if (actor->worthy.cover_state == WORTHY_FIRE) return true;
     if (!visible && distance < 24 * FRACUNIT) {
         actor->movedir = 8;
-        // Search turns expose the normal facing animation without knowing where
-        // the player went. Contact is reacquired only on a sight/sound check.
         actor->angle += side * ANG45;
         return true;
     }
     if (distance < FRACUNIT) distance = FRACUNIT;
     fixed_t ux = FixedDiv(dx, distance), uy = FixedDiv(dy, distance);
-    int preferred = actor->type == MT_SHOTGUY ? 192 : 288;
-    if (actor->health < actor->info->spawnhealth / 3) preferred += 128;
-    int advance = !visible || !ranged ? 1
-        : distance < (preferred - 64) * FRACUNIT ? -1
-        : distance > (preferred + 96) * FRACUNIT ? 1 : 0;
-    // Distinct approach lanes; the center role advances while its flanks orbit.
-    fixed_t strafe = !visible ? 0 : dodge ? FRACUNIT * 2
-        : (seed % 3 == 0 && advance > 0) ? 0 : FRACUNIT * 3 / 4;
-    if (!ranged && distance < 96 * FRACUNIT) strafe = 0;
-    fixed_t wantx = ux * advance - FixedMul(uy, strafe) * side;
-    fixed_t wanty = uy * advance + FixedMul(ux, strafe) * side;
-    find_spacing(actor);
-    wantx += separation_x;
-    wanty += separation_y;
-
-    // Commit briefly to a successful detour instead of oscillating at corners.
-    if (actor->worthy.detour > 0 && !dodge) {
-        actor->worthy.detour--;
-        if (P_Move(actor)) return true;
-    }
-    int64_t scores[8];
-    for (int dir = 0; dir < 8; dir++) {
-        scores[dir] = (int64_t)xspeed[dir] * wantx + (int64_t)yspeed[dir] * wanty;
-        if (dir == actor->movedir) scores[dir] += (int64_t)FRACUNIT * FRACUNIT / 8;
-    }
-    for (int attempt = 0; attempt < 8; attempt++) {
-        int best = 0;
-        for (int dir = 1; dir < 8; dir++) if (scores[dir] > scores[best]) best = dir;
-        scores[best] = INT64_MIN;
-        actor->movedir = best;
-        // P_Move enforces collision, steps, drop-offs, and ordinary monster doors.
-        if (P_Move(actor)) {
-            actor->worthy.detour = attempt > 0 ? 2 : 0;
-            actor->movecount = 0;
-            return true;
+    fixed_t gx = actor->worthy.x, gy = actor->worthy.y;
+    if (ranged && visible) {
+        int preferred = actor->type == MT_SHOTGUY ? 192 : 288;
+        if (actor->health < actor->info->spawnhealth / 3) preferred += 128;
+        if (distance < (preferred - 64) * FRACUNIT) {
+            gx = actor->x - ux * 96; gy = actor->y - uy * 96;
+        } else if (distance <= (preferred + 96) * FRACUNIT) {
+            // Hold a firing position instead of constantly orbiting the player.
+            gx = actor->x; gy = actor->y;
+            if (!P_WorthyCanFire(actor)) {
+                gx -= uy * side * 64; gy += ux * side * 64;
+            }
+        } else if (seed % 3) {
+            // A fixed approach offset, not a new sideways impulse each step.
+            gx -= uy * side * 64; gy += ux * side * 64;
+        }
+        if (dodge) {
+            gx = actor->x - uy * side * 96;
+            gy = actor->y + ux * side * 96;
         }
     }
-    actor->movedir = 8;
+    find_spacing(actor);
+    P_WorthyNavigate(actor, gx, gy, separation_x, separation_y);
     return true;
 }

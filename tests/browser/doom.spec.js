@@ -307,7 +307,16 @@ test('resolution modes render new detail, switch live, and preserve a cross-reso
 test('worthy adversaries toggles live, remembers its setting, and keeps saves compatible', async ({page}) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
+  await page.addInitScript(() => {
+    window.tacticalFrames = 0;
+    const draw = CanvasRenderingContext2D.prototype.putImageData;
+    CanvasRenderingContext2D.prototype.putImageData = function (...args) {
+      if (this.canvas.id === 'game') window.tacticalFrames++;
+      return draw.apply(this, args);
+    };
+  });
   await page.goto('/');
+  await page.locator('#resolution').selectOption('4');
   const mod = page.getByRole('checkbox', {name:'Worthy adversaries'});
   await expect(mod).not.toBeChecked();
   await mod.check();
@@ -318,9 +327,14 @@ test('worthy adversaries toggles live, remembers its setting, and keeps saves co
   await page.waitForTimeout(700);
   await page.keyboard.up('ArrowUp');
   // Gunfire wakes the normal audible enemies; exercise the tactical thinkers.
+  const sample = await page.evaluate(() => ({frames: window.tacticalFrames, time: performance.now()}));
   await page.keyboard.down('Control');
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(8000);
   await page.keyboard.up('Control');
+  const fps = await page.evaluate(start => (window.tacticalFrames - start.frames) * 1000
+    / (performance.now() - start.time), sample);
+  console.log('High-resolution tactical combat FPS:', fps.toFixed(1));
+  expect(fps).toBeGreaterThan(10);
   await saveSlot(page, 'WORTHY');
   await mod.uncheck();
   await expect(page.locator('#worthy-state')).toHaveText('CLASSIC ENEMY AI');

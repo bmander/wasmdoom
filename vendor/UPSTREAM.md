@@ -18,3 +18,8 @@ missile-aim hooks in `p_enemy.c` and `p_mobj.c`. Tactical decisions live in
 `src/p_worthy.c`. `p_mobj.h` contains transient tactical memory, zeroed on load in
 `p_saveg.c`; it is not serialized, preserving the original save format. The mod
 defaults off and is bypassed for demo playback/recording and network games.
+
+Cover/peek cycles and committed obstacle routes are implemented in
+`src/p_worthy.c` and `src/p_worthy_nav.c`. `p_map.c`/`p_local.h` expose a geometry-only
+position probe using the original collision rules without touching actors or
+activating specials. Route and cover memory remain transient and unserialized.

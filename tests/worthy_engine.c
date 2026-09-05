@@ -156,6 +156,92 @@ int main(int argc, char **argv)
     assert(P_WorthyChase(actor));
     assert(actor->x == oldx && actor->y == oldy);
     puts("PASS: occluded enemies cannot track current position; old contact expires");
+    reset();
+    actor = spawn(MT_POSSESSED, -256, 96);
+    assert(P_CheckPosition(actor, actor->x, actor->y));
+    assert(P_CheckSight(actor, player));
+    actor->worthy.next_attack = 0;
+    player->health = players[consoleplayer].health = 10000;
+    P_SetMobjState(actor, actor->info->seestate);
+    int hidden_ticks = 0, exposed_ticks = 0, returned = 0;
+    for (int t = 0; t < 440; t++) {
+        leveltime++;
+        P_MobjThinker(actor);
+        assert(P_CheckPosition(actor, actor->x, actor->y));
+        if (actor->worthy.cover_state == WORTHY_WAIT) {
+            assert(!P_CheckSight(actor, player));
+            hidden_ticks++;
+            if (actor->worthy.cover_cycles) returned = 1;
+        }
+        if (actor->worthy.cover_state == WORTHY_FIRE && P_CheckSight(actor, player)) exposed_ticks++;
+    }
+    assert(hidden_ticks >= 20 && exposed_ticks > 0 && returned);
+    assert(player->health < 10000);
+    puts("PASS: a zombie reaches real cover, waits concealed, peeks, shoots and returns");
+
+    reset();
+    actor = spawn(MT_SERGEANT, -320, 96);
+    assert(P_CheckPosition(actor, actor->x, actor->y));
+    assert(!P_WorthyWalkSegment(actor, actor->x, actor->y, player->x, player->y));
+    actor->worthy.known = 1;
+    actor->worthy.x = player->x; actor->worthy.y = player->y; actor->worthy.z = player->z;
+    actor->worthy.contact_time = leveltime;
+    int used_route = 0, turns = 0, reversals = 0, previous = 8;
+    for (int t = 0; t < 80 && distance(actor) > 64 * FRACUNIT; t++) {
+        leveltime += 2;
+        oldx = actor->x; oldy = actor->y;
+        P_WorthyChase(actor);
+        assert(P_CheckPosition(actor, actor->x, actor->y));
+        assert(abs(actor->x - oldx) <= actor->info->speed * FRACUNIT);
+        assert(abs(actor->y - oldy) <= actor->info->speed * FRACUNIT);
+        if (actor->worthy.route_count) used_route = 1;
+        if (previous < 8 && actor->movedir < 8 && actor->movedir != previous) {
+            turns++;
+            if ((actor->movedir - previous + 8) % 8 == 4) reversals++;
+        }
+        previous = actor->movedir;
+    }
+    assert(used_route && distance(actor) <= 64 * FRACUNIT);
+    assert(turns <= 10 && reversals == 0);
+    puts("PASS: a demon follows a route around an obstruction without reversing or wall clipping");
+
+    reset();
+    actor = spawn(MT_POSSESSED, -256, 96);
+    actor->worthy.known = 1;
+    actor->worthy.x = player->x; actor->worthy.y = player->y; actor->worthy.z = player->z;
+    leveltime++;
+    assert(P_WorthyFindCover(actor));
+    assert(P_WorthyCoverValid(actor));
+    actor->worthy.cover_state = WORTHY_HIDE;
+    ally = spawn(MT_POSSESSED, -256, 160);
+    assert(P_CheckPosition(ally, ally->x, ally->y));
+    ally->worthy.known = 1;
+    ally->worthy.x = player->x; ally->worthy.y = player->y; ally->worthy.z = player->z;
+    leveltime++;
+    if (P_WorthyFindCover(ally)) {
+        assert(P_AproxDistance(actor->worthy.hide_x - ally->worthy.hide_x,
+            actor->worthy.hide_y - ally->worthy.hide_y) >= actor->radius + ally->radius + 16 * FRACUNIT);
+    }
+    puts("PASS: a second monster chooses separate cover or falls back to open combat");
+    // A hidden player's new coordinates must not influence speculative LOS.
+    oldx = player->x; oldy = player->y;
+    player->x += 1024 * FRACUNIT; player->y += 1024 * FRACUNIT;
+    assert(P_WorthyCoverValid(actor));
+    player->x = oldx; player->y = oldy;
+    actor->worthy.x = actor->worthy.hide_x; actor->worthy.y = actor->worthy.hide_y;
+    assert(!P_WorthyCoverValid(actor));
+    puts("PASS: cover uses the remembered threat position and fails when that position exposes it");
+
+    reset();
+    actor = spawn(MT_TROOP, 80, 0);
+    actor->flags |= MF_SKULLFLY;
+    oldx = actor->x; oldy = actor->y;
+    int health = player->health;
+    assert(P_WorthyWalkSegment(actor, actor->x, actor->y, player->x, player->y));
+    assert(actor->x == oldx && actor->y == oldy && player->health == health);
+    assert(actor->flags & MF_SKULLFLY);
+    assert(!P_WorthyWalkSegment(actor, actor->x, actor->y, actor->x + 128 * FRACUNIT, actor->y));
+    puts("PASS: navigation probes test body clearance without moving, attacking, or touching actors");
     puts("All Worthy Adversaries engine scenarios passed.");
     return 0;
 }
