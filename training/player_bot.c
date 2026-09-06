@@ -11,6 +11,9 @@
 static player_policy_t policy, choice;
 static policy_net_t network;
 void Bot_SetNetwork(const float *weights) { P_PolicyNetLoad(&network, weights); }
+void Bot_SetRecurrentNetwork(const float *weights) { P_PolicyNetLoadRecurrent(&network, weights); }
+static float memory[TACTIC_MEMORY];
+static int previous_health;
 static int bound(int value, int low, int high) { return value < low ? low : value > high ? high : value; }
 static fixed_t known_x, known_y;
 static int contact, side, next_switch, observed, visible;
@@ -18,6 +21,8 @@ static int contact, side, next_switch, observed, visible;
 void Bot_Reset(const player_policy_t *value, unsigned seed)
 {
     policy = choice = *value;
+    memset(memory, 0, sizeof(memory));
+    previous_health = 0;
     contact = -10000;
     observed = visible = 0;
     side = seed & 1 ? 1 : -1;
@@ -49,7 +54,7 @@ void Bot_Command(player_t *player)
         if (network.enabled) {
             // No live hidden-enemy state. Missing observations are zero, with
             // the visibility input distinguishing them from a visible target.
-            float features[POLICY_INPUTS] = {
+            float features[TACTIC_INPUTS] = {
                 player->health / 50.0f - 1, player->ammo[am_clip] / 50.0f - 1,
                 nearest ? nearest_distance / (512.0f * FRACUNIT) : 0,
                 nearest ? nearest->health / 100.0f : 0,
@@ -60,8 +65,17 @@ void Bot_Command(player_t *player)
                 nearest ? nearest->momx / (16.0f * FRACUNIT) : 0,
                 nearest ? nearest->momy / (16.0f * FRACUNIT) : 0,
                 (leveltime - contact) / (8.0f * TICRATE)
-            }, output[POLICY_OUTPUTS];
-            P_PolicyNetEvaluate(&network, features, output);
+            }, output[TACTIC_OUTPUTS] = {0};
+            if (network.recurrent) {
+                P_PolicyContext(self, nearest, previous_health, features + POLICY_INPUTS);
+                previous_health = self->health;
+                P_PolicyNetRecurrent(&network, features, memory, output);
+                choice.advance = bound(policy.advance + (int)(output[5] * 30), 12, 50);
+                choice.retreat = bound(policy.retreat + (int)(output[6] * 30), 12, 50);
+                choice.fire_angle = bound(policy.fire_angle + (int)(output[7] * 8), 1, 12);
+                choice.switch_time = bound(policy.switch_time + (int)(output[8] * 70), 18, 140);
+                choice.turn_rate = bound(policy.turn_rate + (int)(output[9] * 1000), 384, 2048);
+            } else P_PolicyNetEvaluate(&network, features, output);
             choice.range = bound(policy.range + (int)(output[0] * 192), 96, 400);
             choice.strafe = bound(policy.strafe + (int)(output[1] * 28), 0, 40);
             choice.health_priority = bound(policy.health_priority + (int)(output[2] * 384), 0, 384);

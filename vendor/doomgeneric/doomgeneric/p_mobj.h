@@ -287,6 +287,8 @@ typedef struct mobj_s
         fixed_t goal_x, goal_y, route_x[32], route_y[32];
         int cover_state, cover_until, cover_retry, cover_check, cover_cycles;
         fixed_t hide_x, hide_y, peek_x, peek_y;
+        float neural_memory[8]; // Transient recurrent policy state; zeroed on load.
+        int neural_health;
     } worthy;
     
 } mobj_t;

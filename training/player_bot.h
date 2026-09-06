@@ -8,5 +8,6 @@ typedef struct {
 } player_policy_t;
 void Bot_Reset(const player_policy_t *policy, unsigned seed);
 void Bot_SetNetwork(const float *weights);
+void Bot_SetRecurrentNetwork(const float *weights);
 void Bot_Command(player_t *player);
 #endif

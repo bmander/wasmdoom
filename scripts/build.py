@@ -10,6 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 ENGINE = ROOT / 'vendor/doomgeneric/doomgeneric'
+subprocess.run([sys.executable, str(ROOT / 'scripts/export_worthy_policy.py')], check=True)
 emcc = os.environ.get('EMCC') or shutil.which('emcc')
 if not emcc:
     candidate = Path.home() / 'emsdk/upstream/emscripten/emcc'
@@ -27,7 +28,7 @@ env = os.environ.copy()
 env.setdefault('EM_CACHE', str(ROOT / '.cache/emscripten'))
 env.setdefault('EM_PORTS', str(ROOT / '.cache/ports'))
 (ROOT / 'public/engine').mkdir(parents=True, exist_ok=True)
-command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/r_resolution.c'), str(ROOT / 'src/p_worthy.c'), str(ROOT / 'src/p_worthy_nav.c'), str(ROOT / 'src/p_policy_net.c'),
+command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/r_resolution.c'), str(ROOT / 'src/p_worthy.c'), str(ROOT / 'src/p_worthy_nav.c'), str(ROOT / 'src/p_policy_net.c'), str(ROOT / 'src/p_policy_context.c'),
            '-I' + str(ENGINE), '-O2', '-DFEATURE_SOUND',
            '-DDOOMGENERIC_RESX=1280', '-DDOOMGENERIC_RESY=800',
            '-Wno-incompatible-function-pointer-types',

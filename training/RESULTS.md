@@ -1,5 +1,23 @@
 # Offline policy results
 
+## Version 4: two hours of recurrent self-play
+
+The [first hour](results/recurrent-v4/README.md) completed 1,038,544 matches.
+Enemy panel win rate increased by 1.875 percentage points on fresh encounters
+in familiar maps, with a positive 95% interval; unseen-map transfer remained
+inconclusive. All 6,144 evaluation replays passed.
+
+The [second hour](results/recurrent-v4-hour2/README.md) completed another 1,101,266
+matches. Direct comparisons against the first-hour policies did not establish
+further improvement. All 9,216 evaluation replays passed. These experiments use
+1,650-weight recurrent policies and the richer [curriculum protocol](COOK_PROTOCOL.md).
+
+The browser uses the second-hour enemy for playtesting, with a subsequently added
+deterministic shooting controller and neural movement/cover. These archived
+training results do not evaluate that hybrid shooting behavior.
+
+## Version 3 overview
+
 **Version 3 improves both sides on fresh encounters in the training maps.** The
 player's improvement also carries to two unseen maps; enemy generalization there
 is inconclusive. The neural stage adds a promising enemy gain, but its advantage
@@ -61,9 +79,9 @@ to unfamiliar map geometry.
 
 These are 20-second pistol combat drills near map starts, involving two or three
 zombies, shotgun zombies, imps, or demons. They do not measure full-level
-completion, visual perception, or difficulty against human players. The browser
-continues to use its original Worthy Adversaries settings; watch mode remains
-future work.
+completion, visual perception, or difficulty against human players. This neural
+enemy was used in browser playtesting before the version 4 policies above.
+Bot-versus-bot watch mode remains future work.
 
 ## Infrastructure corrections and audit trail
 
@@ -100,8 +118,7 @@ dictionaries, source snapshots, compiler/platform metadata, and fingerprints.
 ## Earlier experiments
 
 **Neither of the first two experiments established a reliable overall
-improvement for both sides.** The browser still uses the original
-hand-tuned policy. Both runs, including the disappointing results, are retained.
+improvement for both sides.** At that time the browser used the original hand-tuned policy. Both runs, including the disappointing results, are retained.
 
 Across the two runs, the arena simulated **38,076 training/evaluation matches**
 in about four minutes of simulation wall time, plus compilation and verification.

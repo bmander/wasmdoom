@@ -12,7 +12,7 @@ try { $('worthy').checked = localStorage.getItem('doom-worthy-adversaries') === 
 function updateWorthy() {
   const enabled = $('worthy').checked;
   if (engine && !failed) engine._doom_worthy(Number(enabled));
-  $('worthy-state').textContent = enabled ? 'TACTICAL ENEMY AI' : 'CLASSIC ENEMY AI';
+  $('worthy-state').textContent = enabled ? 'NEURAL ENEMY AI' : 'CLASSIC ENEMY AI';
   $('worthy').closest('.adversaries').classList.toggle('enabled', enabled);
 }
 updateWorthy();

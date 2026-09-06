@@ -13,6 +13,7 @@
 #include "p_tick.h"
 #include "g_game.h"
 #include "player_bot.h"
+#include "scenario.h"
 
 static uint32_t clock_ms = 1000, scenario_rng;
 void DG_Init(void) {}
@@ -34,7 +35,7 @@ static unsigned random_scenario(void)
 }
 
 static void match(unsigned seed, int map, int limit, const player_policy_t *player_policy,
-                  const worthy_policy_t *enemy_policy, const float *player_net, const float *enemy_net)
+                  const worthy_policy_t *enemy_policy, const float *player_net, const float *enemy_net, int p_kind, int e_kind, int mode)
 {
     P_WorthySetEnabled(0);
     G_InitNew(sk_medium, 1, map);
@@ -44,6 +45,7 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
     demoplayback = demorecording = false;
     player_t *player = &players[consoleplayer];
     mobj_t *self = player->mo;
+    if (mode) Scenario_Capture();
     for (thinker_t *th = thinkercap.next; th != &thinkercap; th = th->next)
         if (th->function.acp1 == (actionf_p1)P_MobjThinker && (mobj_t *)th != self)
             P_RemoveMobj((mobj_t *)th);
@@ -51,13 +53,21 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
     scenario_rng = seed ? seed : 1;
     prndindex = seed & 255; rndindex = (seed >> 8) & 255;
     Bot_Reset(player_policy, seed);
-    Bot_SetNetwork(player_net);
-    P_WorthySetNetwork(enemy_net);
+    if (p_kind == 2) Bot_SetRecurrentNetwork(player_net); else Bot_SetNetwork(player_net);
+    if (e_kind == 2) P_WorthySetRecurrentNetwork(enemy_net); else P_WorthySetNetwork(enemy_net);
     P_WorthySetPolicy(enemy_policy);
-    mobj_t *enemies[3];
+    mobj_t *enemies[SCENARIO_MAX_ENEMIES];
     static const mobjtype_t types[] = {MT_POSSESSED, MT_TROOP, MT_SHOTGUY, MT_SERGEANT};
     int count = 2 + seed % 2, total_health = 0, layout_retries = 0;
-    for (int n = 0; n < count; n++) {
+    if (mode) {
+        total_health = Scenario_Build(player, seed, mode, enemies, &count);
+        if (!total_health) {
+            printf("RESULT {\"error\":\"No valid combat spawn\",\"seed\":%u,\"map\":%d}\n", seed, map);
+            fflush(stdout);
+            return;
+        }
+    }
+    for (int n = 0; !mode && n < count; n++) {
         mobjtype_t type = types[(seed + n) % 4];
         mobj_t *enemy = NULL;
         for (int attempt = 0; attempt < 1000; attempt++) {
@@ -93,6 +103,10 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
         enemies[n] = enemy;
         total_health += enemy->health;
     }
+    int start_x = self->x / FRACUNIT, start_y = self->y / FRACUNIT;
+    int start_weapon = player->readyweapon;
+    int initial_visible = 0;
+    for (int n = 0; n < count; n++) initial_visible += P_CheckSight(enemies[n], self) != 0;
     P_WorthySetEnabled(1);
     for (int n = 0; n < count; n++) P_SetMobjState(enemies[n], enemies[n]->info->seestate);
     int alive = count, remaining = total_health, t;
@@ -112,9 +126,12 @@ static void match(unsigned seed, int map, int limit, const player_policy_t *play
     int result = self->health <= 0 ? -1 : !alive ? 1 : 0;
     double score = result + 0.25 * (damage - (1.0 - health));
     printf("RESULT {\"seed\":%u,\"map\":%d,\"result\":%d,\"score\":%.6f,\"ticks\":%d,"
-           "\"player_health\":%d,\"enemy_health\":%d,\"enemy_initial_health\":%d,\"kills\":%d,\"enemies\":%d}\n",
+           "\"player_health\":%d,\"enemy_health\":%d,\"enemy_initial_health\":%d,\"kills\":%d,\"enemies\":%d",
            seed, map, result, score, t < limit ? t + 1 : t, self->health > 0 ? self->health : 0,
            remaining, total_health, count - alive, count);
+    if (mode) printf(",\"scenario\":%d,\"weapon\":%d,\"initial_visible\":%d,\"spawn_x\":%d,\"spawn_y\":%d",
+                     mode, start_weapon, initial_visible, start_x, start_y);
+    puts("}");
     fflush(stdout);
 }
 
@@ -124,22 +141,22 @@ static int read_network(char **cursor, float *weights)
 {
     char *end;
     long enabled = strtol(*cursor, &end, 10);
-    if (end == *cursor || (enabled != 0 && enabled != 1)) return -1;
+    if (end == *cursor || (enabled < 0 || enabled > 2)) return -1;
     *cursor = end;
     if (!enabled) return 0;
-    for (int i = 0; i < POLICY_WEIGHTS; i++) {
+    for (int i = 0; i < (enabled == 2 ? TACTIC_WEIGHTS : POLICY_WEIGHTS); i++) {
         weights[i] = strtof(*cursor, &end);
         if (end == *cursor || !isfinite(weights[i]) || fabsf(weights[i]) > 4) return -1;
         *cursor = end;
     }
-    return 1;
+    return enabled;
 }
 
 int main(int argc, char **argv)
 {
     doomgeneric_Create(argc, argv);
     for (int i = 0; i < 3; i++) { clock_ms += 40; doomgeneric_Tick(); }
-    char line[32768];
+    char line[131072];
     while (fgets(line, sizeof(line), stdin)) {
         unsigned seed;
         int map, limit, offset = 0;
@@ -161,7 +178,7 @@ int main(int argc, char **argv)
             fflush(stdout);
             continue;
         }
-        float pn[POLICY_WEIGHTS], en[POLICY_WEIGHTS];
+        float pn[TACTIC_WEIGHTS], en[TACTIC_WEIGHTS];
         char *cursor = line + offset;
         while (isspace((unsigned char)*cursor)) cursor++;
         int has_p = 0, has_e = 0;
@@ -169,13 +186,22 @@ int main(int argc, char **argv)
             has_p = read_network(&cursor, pn);
             has_e = has_p < 0 ? -1 : read_network(&cursor, en);
         }
+        int mode = 0;
         while (isspace((unsigned char)*cursor)) cursor++;
-        if (has_p < 0 || has_e < 0 || *cursor) {
+        if (*cursor == 'S') {
+            char *end;
+            cursor++;
+            mode = (int)strtol(cursor, &end, 10);
+            if (end == cursor) mode = -1;
+            cursor = end;
+            while (isspace((unsigned char)*cursor)) cursor++;
+        }
+        if (mode < 0 || mode > 2 || has_p < 0 || has_e < 0 || *cursor) {
             puts("RESULT {\"error\":\"Invalid neural policy\"}");
             fflush(stdout);
             continue;
         }
-        match(seed, map, limit, &p, &e, has_p ? pn : NULL, has_e ? en : NULL);
+        match(seed, map, limit, &p, &e, has_p ? pn : NULL, has_e ? en : NULL, has_p, has_e, mode);
     }
     return 0;
 }

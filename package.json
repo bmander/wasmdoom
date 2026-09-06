@@ -10,9 +10,11 @@
     "test": "node --test tests/wad.test.mjs && playwright test",
     "test:ai": "python3 scripts/test_worthy.py",
     "train": "python3 -m training.selfplay",
+    "train:cook": "python3 -m training.cook",
+    "train:start": "python3 scripts/start_training.py",
     "train:league": "python3 -m training.league",
     "train:evaluate": "python3 -m training.evaluate",
-    "test:training": "python3 -m unittest discover -s tests -p 'test_selfplay.py'"
+    "test:training": "python3 -m unittest discover -s tests -p 'test_*.py'"
   },
   "devDependencies": { "@playwright/test": "^1.58.2" }
 }

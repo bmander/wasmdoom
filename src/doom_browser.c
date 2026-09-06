@@ -3,7 +3,7 @@
 #include "d_event.h"
 #include "m_controls.h"
 #include "r_resolution.h"
-#include "p_worthy.h"
+#include "p_worthy_champion.h"
 #include <emscripten.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -62,7 +62,7 @@ EMSCRIPTEN_KEEPALIVE void doom_mute(int value)
 void DG_Init(void) {}
 
 EMSCRIPTEN_KEEPALIVE void doom_resolution(int scale) { R_RequestResolution(scale); }
-EMSCRIPTEN_KEEPALIVE void doom_worthy(int enabled) { P_WorthySetEnabled(enabled); }
+EMSCRIPTEN_KEEPALIVE void doom_worthy(int enabled) { Worthy_UseChampion(enabled); }
 
 EM_JS(void, draw_frame, (const void *pixels, int width, int height), {
     if (!Module.frameImage || Module.frameImage.width !== width || Module.frameImage.height !== height) {

@@ -53,7 +53,9 @@ site where they were created; localhost saves are separate from the hosted site.
   ceilings, and sprites are rasterized at the selected resolution.
 - Changing tabs or focusing another application pauses the game.
 - **Worthy adversaries** is an optional checkbox you can toggle before or during
-  play. The choice is remembered in this browser. Ranged enemies maintain space
+  play. The choice is remembered in this browser. It uses the second-hour v4 recurrent
+  enemy checkpoint, with per-monster memory and learned spacing, cover, and pursuit
+  decisions. The enabled status reads “NEURAL ENEMY AI.” Ranged enemies maintain space
   and look for reachable cover with a nearby firing position. They hide briefly,
   peek out, fire a burst, and return to cover, reconsidering after three cycles.
   Cover stops being useful when a new sighting or sound reveals a flanking player.
@@ -63,10 +65,13 @@ site where they were created; localhost saves are separate from the hosted site.
   instead of constantly circling. Nearby allies yield space and avoid reserving
   the same cover spot. Blocked monsters wait or replan instead of cycling through
   backward steps. Movement still uses ordinary DOOM collision and door rules.
-- With the mod enabled, sustained visible fire prompts a sidestep after a short
-  reaction delay. Enemies avoid obstructed firing lanes; projectiles partially
-  lead visible moving players, with a capped prediction that changing direction
-  can beat. Invisibility still spoils prediction.
+- Movement and cover use the neural policy; shooting uses a deterministic
+  controller. Pistol and chaingun enemies aim directly at visible players, and
+  shotgunners use a tight fixed spread. Clear shots fire after a fixed cooldown
+  and the normal attack animation. Projectiles intercept observed motion with
+  bounded prediction; changing direction can still evade them. Invisibility
+  retains ordinary aim errors, and blocked firing lanes still prevent shots.
+- Sustained visible fire prompts a sidestep after a short reaction delay.
 - Enemies acquire players through the normal sight/sound rules. They investigate
   the last observed/heard position for up to eight seconds instead of following
   a player's live coordinates through walls. Ordinary collision, doors, ledges,
@@ -146,8 +151,11 @@ against a league of past opponents in the native engine. It supports tactical
 parameter search and small neural networks that choose tactics from visible
 combat state. Start with `npm run train:league -- --output .cache/parameters`;
 the laboratory guide covers neural training, frozen evaluation, and offline replay.
-Only Python and a C compiler are needed. Learned policies remain offline;
-browser watch mode is a future step. [Experiment results](training/RESULTS.md)
+For longer recurrent training with varied rooms, loadouts and enemy teams, run
+`npm run train:start -- --minutes 60 --workers 4 --output .cache/recurrent-v4`.
+Only Python and a C compiler are needed. Worthy Adversaries now uses the selected
+neural enemy checkpoint; the trained player remains offline, and bot watch mode
+is a future step. [Experiment results](training/RESULTS.md)
 retain both earlier inconclusive runs and the newer comparisons.
 
 ## Verification

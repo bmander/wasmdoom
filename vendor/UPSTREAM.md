@@ -26,5 +26,15 @@ activating specials. Route and cover memory remain transient and unserialized.
 
 Offline policy experiments add `p_policy_net.h` and `src/p_policy_net.c`, a small
 bounded tanh network, plus optional network decisions in `p_worthy.c`. The browser
-does not load learned networks. Parameter defaults preserve the shipped tactics;
+embeds a frozen enemy network when the mod is enabled. Parameter defaults preserve the shipped tactics;
 `training/` owns the native arena, player bot, optimizer, and evaluation artifacts.
+
+Browser hybrid combat uses deterministic attack scheduling and hitscan spread
+hooks in `p_enemy.c`, plus bounded projectile interception in `p_worthy.c`.
+Neural decisions still control movement and cover. The override is explicitly
+enabled by the browser champion loader; archived offline arena rules stay intact.
+
+Version 4 experiments add optional recurrent inference and structured context in
+`p_policy_net.c` and `p_policy_context.c`. Per-actor neural memory in `p_mobj.h`
+is transient and cleared by the existing `p_saveg.c` reset; the save format is
+unchanged. Legacy networks retain their previous shape and behavior.

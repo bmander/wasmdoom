@@ -60,7 +60,7 @@ class Arena:
             cwd=ROOT / '.cache', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log)
         self.buffer = b''
 
-    def play(self, player, enemy, seed, map_id, ticks=700, player_net=None, enemy_net=None):
+    def play(self, player, enemy, seed, map_id, ticks=700, player_net=None, enemy_net=None, scenario=0):
         for values, space in [(player, PLAYER), (enemy, ENEMY)]:
             if len(values) != len(space) or any(not isinstance(v, int) or not lo <= v <= hi
                 for v, (_, lo, hi, _) in zip(values, space)):
@@ -70,9 +70,11 @@ class Arena:
             if network is None:
                 command += ' 0'
             else:
-                if len(network) != 149 or any(not math.isfinite(v) or abs(v) > 4 for v in network):
-                    raise ValueError('Neural policies need 149 finite weights in [-4, 4]')
-                command += ' 1 ' + ' '.join(format(v, '.9g') for v in network)
+                if len(network) not in (149, 1650) or any(not math.isfinite(v) or abs(v) > 4 for v in network):
+                    raise ValueError('Neural policies need 149 or 1650 finite weights in [-4, 4]')
+                command += (' 1 ' if len(network) == 149 else ' 2 ') + ' '.join(format(v, '.9g') for v in network)
+        if scenario not in (0, 1, 2): raise ValueError('Unknown scenario curriculum')
+        if scenario: command += ' S ' + str(scenario)
         command += '\n'
         self.process.stdin.write(command.encode())
         self.process.stdin.flush()

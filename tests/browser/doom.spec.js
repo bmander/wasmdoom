@@ -320,7 +320,7 @@ test('worthy adversaries toggles live, remembers its setting, and keeps saves co
   const mod = page.getByRole('checkbox', {name:'Worthy adversaries'});
   await expect(mod).not.toBeChecked();
   await mod.check();
-  await expect(page.locator('#worthy-state')).toHaveText('TACTICAL ENEMY AI');
+  await expect(page.locator('#worthy-state')).toHaveText('NEURAL ENEMY AI');
   await start(page);
   await enterLevel(page);
   await page.keyboard.down('ArrowUp');

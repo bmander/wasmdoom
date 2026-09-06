@@ -12,6 +12,12 @@ typedef struct {
 } worthy_policy_t;
 void P_WorthySetPolicy(const worthy_policy_t *policy);
 void P_WorthySetNetwork(const float *weights);
+void P_WorthySetRecurrentNetwork(const float *weights);
+// Opt-in hybrid combat; legacy offline checkpoints retain their original rules.
+void P_WorthySetDeterministicFire(int enabled);
+boolean P_WorthyDeterministicFire(mobj_t *actor);
+angle_t P_WorthyShotAngle(mobj_t *actor, angle_t aim, angle_t spread, int pellet);
+void P_PolicyContext(mobj_t *actor, mobj_t *visible_target, int previous_health, float *output);
 boolean P_WorthyEnabled(void);
 boolean P_WorthyChase(mobj_t *actor);
 boolean P_WorthyCanFire(mobj_t *actor);

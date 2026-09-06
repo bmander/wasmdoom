@@ -3,10 +3,63 @@
 Player bots and enemy teams train in the actual native DOOM engine. The lab now
 supports **parameter search and neural policies**. Both use CPU mutation and
 selection against a league of opponents; neither needs Python packages, a GPU,
-or a browser. Learned policies remain offline artifacts. Browser watch mode is
-future work, and the playable site's Worthy Adversaries defaults stay unchanged.
+or a browser. The Worthy Adversaries checkbox now uses the selected neural enemy
+checkpoint from `results/recurrent-v4-hour2`; the player remains human-controlled. Browser
+watch mode for bot-versus-bot encounters is still future work.
 
 Read [results](RESULTS.md) and the [frozen evaluation protocol](PROTOCOL.md).
+
+## Longer recurrent training
+
+Version 4 adds a **1,650-weight recurrent policy** to each side: 24 observations
+and eight memory values feed 32 hidden units, producing ten tactical outputs and
+eight next-memory values. New observations include allies, incoming projectiles,
+local geometry, recent damage, weapon identity, relative height, and movement.
+Memory belongs to each actor and resets between episodes and on saved-game load.
+The five extra enemy controls adapt cover timing, dodge reaction and flank side;
+the player can also adapt advance/retreat, firing tolerance and turn timing.
+
+The curriculum mixes the original drills with random safe starting rooms on
+E1M1–E1M5, reachable spawn positions, 3–7 monsters, hidden threats, and pistol,
+shotgun or chaingun players with occasional armor. Expanded episodes last up to
+45 seconds. Normal monster statistics remain unchanged. A fixed panel of strong,
+aggressive and cautious players helps keep improvements relevant beyond beating
+one weak bot. E1M6–E1M8 are held out.
+
+Start a detached, lower-priority one-hour CPU run:
+
+```sh
+npm run train:start -- --minutes 60 --workers 4 --output .cache/recurrent-v4
+tail -f .cache/recurrent-v4.log
+```
+
+The launcher prints its PID. Progress is in `.cache/recurrent-v4/progress.json`;
+full policies, Adam state and RNG state are saved in `checkpoint.json` after each
+side's update. A source snapshot and a private copy of the native engine pin the
+run to its starting code. Compressed match/model/admission logs remain in that
+folder. The output directory is locked against simultaneous writers.
+
+```sh
+# Finish the current update and proceed to frozen evaluation.
+touch .cache/recurrent-v4/STOP
+
+# Alternatively, pause the trainer by sending SIGTERM to its printed PID.
+# Resume a paused run with the SAME source files and original configuration:
+npm run train:start -- --resume --output .cache/recurrent-v4
+```
+
+Training ends at the budget boundary after completing its current update, then
+runs separate evaluation and serial replay checks. Results go to
+`evaluation.json`; `progress.json` changes to `finished` (or reports an error).
+The one-hour budget covers training; final evaluation takes additional time.
+There is no automatic browser promotion. Finished evaluations cannot resume
+training against the same test set; start a new experiment with a fresh test base.
+
+This is reward-driven **antithetic evolution strategies**, with Adam proposals
+and validated population candidates. It does not use PPO or backpropagation.
+The smaller network remains supported, and recurrent warm starts reproduce the
+old policy's initial actions exactly. See [the version 4 protocol](COOK_PROTOCOL.md)
+for the seed split, controls, comparison rules and uncertainty reporting.
 
 ## Run an experiment
 
@@ -134,3 +187,34 @@ and the full train/freeze/evaluate pipeline using separate smoke-test seeds (plu
 Earlier artifacts retain their original schemas: version 1 is reproduced at
 commit `f54f15f`, and version 2 at `96ec34a`. See their reports under
 `results/first-run` and `results/validated-run`.
+
+## Browser champion
+
+To give a finished run another hour, create a continuation in a new directory:
+
+```sh
+npm run train:start -- --continue-from .cache/recurrent-v4 --minutes 60 --workers 4 --output .cache/recurrent-v4-hour2 --evaluation-base 940000000
+```
+
+This retains both policies, Adam state, random generator state, opponent pools,
+and the generation cursor. The parent results stay frozen. Time and match counts
+in the new directory cover only the additional run. A fresh evaluation seed family
+is required; final tests compare against both the original baselines and the
+parent policies on the same encounters. Training does not change the browser.
+
+The build runs `scripts/export_worthy_policy.py`, which validates and embeds the
+frozen enemy parameters and 1,650 recurrent network weights in `src/p_worthy_champion.h`.
+The source checkpoint hash is recorded in that generated header. Only the browser
+adapter opts into this champion; offline training retains its original reference
+controllers. Disabling the checkbox unloads the network and restores classic AI.
+The second-hour policy is selected for user playtesting. Its fresh evaluation
+did not establish an improvement over the first-hour policy, which is preserved
+in `results/recurrent-v4`.
+
+The browser now combines this network's movement/cover choices with deterministic
+shooting: direct hitscan aim, a tight shotgun fan, bounded projectile interception,
+and fixed attack cooldowns. It ignores the learned firing-pressure output and
+learned attack-delay/lead parameters. The arena does not enable this shooting
+override, preserving the rules used for the archived evaluations. Those results
+therefore do not measure the browser's hybrid controller; future training must
+explicitly enable and evaluate the new combat rules to match browser play.

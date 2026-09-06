@@ -1,0 +1,1748 @@
+{
+  "status": "finished",
+  "phase": "finished",
+  "generation": 63,
+  "next_role": "player",
+  "elapsed_seconds": 3692.8643422540044,
+  "matches": 1038544,
+  "remaining_training_seconds": 0,
+  "updated_utc": "2026-09-05T21:16:49.301063+00:00",
+  "history": [
+    {
+      "generation": 1,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 185,
+        "reference_wins": 185,
+        "draws": 35,
+        "score_gain": 0.0
+      },
+      "candidate": "b9fe1d096b9dc8ee9d3c"
+    },
+    {
+      "generation": 1,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.026708602666666637,
+      "anchor": {
+        "matches": 750,
+        "wins": 75,
+        "reference_wins": 84,
+        "draws": 95,
+        "score_gain": -0.028335133333333335
+      },
+      "candidate": "abb76bc4f5c3634016fc"
+    },
+    {
+      "generation": 2,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.020277711999999948,
+      "anchor": {
+        "matches": 250,
+        "wins": 202,
+        "reference_wins": 197,
+        "draws": 21,
+        "score_gain": 0.020277712000000003
+      },
+      "candidate": "d48c55ac230ac2b87c24"
+    },
+    {
+      "generation": 2,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.01973052799999997,
+      "anchor": {
+        "matches": 750,
+        "wins": 68,
+        "reference_wins": 72,
+        "draws": 99,
+        "score_gain": -0.0013945066666666668
+      },
+      "candidate": "01576d2b60a2b55d8da4"
+    },
+    {
+      "generation": 3,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.07344141199999998,
+      "anchor": {
+        "matches": 250,
+        "wins": 208,
+        "reference_wins": 199,
+        "draws": 19,
+        "score_gain": 0.073441412
+      },
+      "candidate": "1738140b6c0b6a0cd07c"
+    },
+    {
+      "generation": 3,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.029593721000000017,
+      "anchor": {
+        "matches": 750,
+        "wins": 81,
+        "reference_wins": 84,
+        "draws": 74,
+        "score_gain": 0.003673766666666665
+      },
+      "candidate": "5d8f3bea907bb0d513d6"
+    },
+    {
+      "generation": 4,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.0024547879999999855,
+      "anchor": {
+        "matches": 250,
+        "wins": 197,
+        "reference_wins": 199,
+        "draws": 28,
+        "score_gain": -0.0024547880000000064
+      },
+      "candidate": "4c1519f49a66339d2fd5"
+    },
+    {
+      "generation": 4,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.029089158000000004,
+      "anchor": {
+        "matches": 750,
+        "wins": 88,
+        "reference_wins": 87,
+        "draws": 85,
+        "score_gain": 0.0013602986666666713
+      },
+      "candidate": "0343115e73b078a269fb"
+    },
+    {
+      "generation": 5,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 192,
+        "reference_wins": 192,
+        "draws": 34,
+        "score_gain": 0.0
+      },
+      "candidate": "1738140b6c0b6a0cd07c"
+    },
+    {
+      "generation": 5,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.01864142999999996,
+      "anchor": {
+        "matches": 750,
+        "wins": 83,
+        "reference_wins": 77,
+        "draws": 92,
+        "score_gain": 0.022744016000000002
+      },
+      "candidate": "0663455d9f473f12ab4c"
+    },
+    {
+      "generation": 6,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.09155014399999994,
+      "anchor": {
+        "matches": 250,
+        "wins": 199,
+        "reference_wins": 188,
+        "draws": 28,
+        "score_gain": 0.105151924
+      },
+      "candidate": "7ebdd55c43e7e4386637"
+    },
+    {
+      "generation": 6,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 84,
+        "reference_wins": 84,
+        "draws": 87,
+        "score_gain": 0.0
+      },
+      "candidate": "0663455d9f473f12ab4c"
+    },
+    {
+      "generation": 7,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.04629870800000002,
+      "anchor": {
+        "matches": 250,
+        "wins": 200,
+        "reference_wins": 196,
+        "draws": 31,
+        "score_gain": 0.031310208
+      },
+      "candidate": "ebcf60c77e4a186b3b3b"
+    },
+    {
+      "generation": 7,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.013826223000000026,
+      "anchor": {
+        "matches": 750,
+        "wins": 71,
+        "reference_wins": 65,
+        "draws": 99,
+        "score_gain": 0.022967448
+      },
+      "candidate": "e63cff2ee67b7ef82406"
+    },
+    {
+      "generation": 8,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.018263032000000012,
+      "anchor": {
+        "matches": 250,
+        "wins": 209,
+        "reference_wins": 203,
+        "draws": 18,
+        "score_gain": 0.059608604
+      },
+      "candidate": "80fe55306960d574ea48"
+    },
+    {
+      "generation": 8,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.010883548999999992,
+      "anchor": {
+        "matches": 750,
+        "wins": 84,
+        "reference_wins": 82,
+        "draws": 67,
+        "score_gain": 0.014905641333333332
+      },
+      "candidate": "3978f4ac2f8698f8e553"
+    },
+    {
+      "generation": 9,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.06535900533333339,
+      "anchor": {
+        "matches": 250,
+        "wins": 183,
+        "reference_wins": 193,
+        "draws": 31,
+        "score_gain": -0.096498896
+      },
+      "candidate": "9ab42ce1ac07d2acb4b7"
+    },
+    {
+      "generation": 9,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.029401679999999986,
+      "anchor": {
+        "matches": 750,
+        "wins": 123,
+        "reference_wins": 114,
+        "draws": 99,
+        "score_gain": 0.030762786666666663
+      },
+      "candidate": "2fe19712a7bc377d57f5"
+    },
+    {
+      "generation": 10,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 186,
+        "reference_wins": 186,
+        "draws": 25,
+        "score_gain": 0.0
+      },
+      "candidate": "80fe55306960d574ea48"
+    },
+    {
+      "generation": 10,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.01319144299999997,
+      "anchor": {
+        "matches": 750,
+        "wins": 135,
+        "reference_wins": 122,
+        "draws": 87,
+        "score_gain": 0.03997546133333334
+      },
+      "candidate": "f6211f3765deb99f82fb"
+    },
+    {
+      "generation": 11,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.007652766666666699,
+      "anchor": {
+        "matches": 250,
+        "wins": 185,
+        "reference_wins": 187,
+        "draws": 28,
+        "score_gain": -0.0017836679999999946
+      },
+      "candidate": "15d9b5e7599959037037"
+    },
+    {
+      "generation": 11,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.021759962000000077,
+      "anchor": {
+        "matches": 750,
+        "wins": 123,
+        "reference_wins": 120,
+        "draws": 86,
+        "score_gain": -0.0008150786666666647
+      },
+      "candidate": "4438ca505625b4f5e7cb"
+    },
+    {
+      "generation": 12,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.029969551999999955,
+      "anchor": {
+        "matches": 250,
+        "wins": 185,
+        "reference_wins": 188,
+        "draws": 26,
+        "score_gain": -0.03123057599999999
+      },
+      "candidate": "c835120e92ca0472e15a"
+    },
+    {
+      "generation": 12,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.0006531280000000583,
+      "anchor": {
+        "matches": 750,
+        "wins": 113,
+        "reference_wins": 120,
+        "draws": 95,
+        "score_gain": -0.020415425333333334
+      },
+      "candidate": "bbe87d34937004ba2b68"
+    },
+    {
+      "generation": 13,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 194,
+        "reference_wins": 194,
+        "draws": 30,
+        "score_gain": 0.0
+      },
+      "candidate": "80fe55306960d574ea48"
+    },
+    {
+      "generation": 13,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.021728415,
+      "anchor": {
+        "matches": 750,
+        "wins": 100,
+        "reference_wins": 103,
+        "draws": 87,
+        "score_gain": -0.011910422666666668
+      },
+      "candidate": "b8b9c257c14cdecffefb"
+    },
+    {
+      "generation": 14,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.04116975733333339,
+      "anchor": {
+        "matches": 250,
+        "wins": 199,
+        "reference_wins": 196,
+        "draws": 23,
+        "score_gain": 0.042856632000000006
+      },
+      "candidate": "37d4b213c3e258072e65"
+    },
+    {
+      "generation": 14,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 116,
+        "reference_wins": 116,
+        "draws": 72,
+        "score_gain": 0.0
+      },
+      "candidate": "f6211f3765deb99f82fb"
+    },
+    {
+      "generation": 15,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 197,
+        "reference_wins": 197,
+        "draws": 24,
+        "score_gain": 0.0
+      },
+      "candidate": "37d4b213c3e258072e65"
+    },
+    {
+      "generation": 15,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.035518639000000074,
+      "anchor": {
+        "matches": 750,
+        "wins": 101,
+        "reference_wins": 100,
+        "draws": 72,
+        "score_gain": -0.009541507999999999
+      },
+      "candidate": "d9ee468164bff9038b83"
+    },
+    {
+      "generation": 16,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.029369797333333336,
+      "anchor": {
+        "matches": 250,
+        "wins": 192,
+        "reference_wins": 186,
+        "draws": 25,
+        "score_gain": 0.04439822
+      },
+      "candidate": "617538bdaae587e25751"
+    },
+    {
+      "generation": 16,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.002248881999999952,
+      "anchor": {
+        "matches": 750,
+        "wins": 120,
+        "reference_wins": 114,
+        "draws": 83,
+        "score_gain": 0.02538705333333333
+      },
+      "candidate": "aafd0365ba140f6cb1ec"
+    },
+    {
+      "generation": 17,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.05031606799999999,
+      "anchor": {
+        "matches": 250,
+        "wins": 189,
+        "reference_wins": 192,
+        "draws": 30,
+        "score_gain": -0.017897816000000004
+      },
+      "candidate": "f06d4a7b402a3fa2b740"
+    },
+    {
+      "generation": 17,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.014357360999999957,
+      "anchor": {
+        "matches": 750,
+        "wins": 108,
+        "reference_wins": 112,
+        "draws": 89,
+        "score_gain": -0.009990645333333333
+      },
+      "candidate": "aa255d2e2edcdbb1df1f"
+    },
+    {
+      "generation": 18,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.033381414666666664,
+      "anchor": {
+        "matches": 250,
+        "wins": 206,
+        "reference_wins": 197,
+        "draws": 25,
+        "score_gain": 0.099774412
+      },
+      "candidate": "985ffd96d8197179f47a"
+    },
+    {
+      "generation": 18,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.027413709999999925,
+      "anchor": {
+        "matches": 750,
+        "wins": 86,
+        "reference_wins": 88,
+        "draws": 74,
+        "score_gain": -0.007863123999999996
+      },
+      "candidate": "900106e48363b50935e3"
+    },
+    {
+      "generation": 19,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 192,
+        "reference_wins": 192,
+        "draws": 35,
+        "score_gain": 0.0
+      },
+      "candidate": "985ffd96d8197179f47a"
+    },
+    {
+      "generation": 19,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.002779191000000014,
+      "anchor": {
+        "matches": 750,
+        "wins": 92,
+        "reference_wins": 97,
+        "draws": 105,
+        "score_gain": -0.00577364933333333
+      },
+      "candidate": "9304d47049080e03556e"
+    },
+    {
+      "generation": 20,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.03210245733333328,
+      "anchor": {
+        "matches": 250,
+        "wins": 182,
+        "reference_wins": 189,
+        "draws": 31,
+        "score_gain": -0.052714760000000006
+      },
+      "candidate": "d33ce55aa4724bd5ea0e"
+    },
+    {
+      "generation": 20,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 123,
+        "reference_wins": 123,
+        "draws": 81,
+        "score_gain": 0.0
+      },
+      "candidate": "f6211f3765deb99f82fb"
+    },
+    {
+      "generation": 21,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 182,
+        "reference_wins": 182,
+        "draws": 39,
+        "score_gain": 0.0
+      },
+      "candidate": "985ffd96d8197179f47a"
+    },
+    {
+      "generation": 21,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.005719229999999964,
+      "anchor": {
+        "matches": 750,
+        "wins": 113,
+        "reference_wins": 119,
+        "draws": 109,
+        "score_gain": -0.012763389333333335
+      },
+      "candidate": "a251e97b0aa0316932fc"
+    },
+    {
+      "generation": 22,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.011703350666666723,
+      "anchor": {
+        "matches": 250,
+        "wins": 183,
+        "reference_wins": 179,
+        "draws": 29,
+        "score_gain": 0.01776603999999999
+      },
+      "candidate": "795ddb3240c83a198463"
+    },
+    {
+      "generation": 22,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0006789799999999957,
+      "anchor": {
+        "matches": 750,
+        "wins": 123,
+        "reference_wins": 133,
+        "draws": 81,
+        "score_gain": -0.016791091999999997
+      },
+      "candidate": "b867b337a72afa653147"
+    },
+    {
+      "generation": 23,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.029016513333333327,
+      "anchor": {
+        "matches": 250,
+        "wins": 187,
+        "reference_wins": 197,
+        "draws": 33,
+        "score_gain": -0.057374872
+      },
+      "candidate": "805abfdf01729d1d8b39"
+    },
+    {
+      "generation": 23,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.0019363289999999589,
+      "anchor": {
+        "matches": 750,
+        "wins": 119,
+        "reference_wins": 121,
+        "draws": 93,
+        "score_gain": -0.004453924000000001
+      },
+      "candidate": "3ca42c7e5db85456eb3e"
+    },
+    {
+      "generation": 24,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.0014113826666667384,
+      "anchor": {
+        "matches": 250,
+        "wins": 188,
+        "reference_wins": 190,
+        "draws": 33,
+        "score_gain": -0.009980444000000008
+      },
+      "candidate": "27798eab4d2098410763"
+    },
+    {
+      "generation": 24,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0005826920000000513,
+      "anchor": {
+        "matches": 750,
+        "wins": 114,
+        "reference_wins": 113,
+        "draws": 78,
+        "score_gain": 0.003847673333333331
+      },
+      "candidate": "52e1f3629b5f28fb0a79"
+    },
+    {
+      "generation": 25,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.025732847999999975,
+      "anchor": {
+        "matches": 250,
+        "wins": 194,
+        "reference_wins": 202,
+        "draws": 31,
+        "score_gain": -0.03479663999999999
+      },
+      "candidate": "13692f93b12c015d83f2"
+    },
+    {
+      "generation": 25,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.04267743200000007,
+      "anchor": {
+        "matches": 750,
+        "wins": 104,
+        "reference_wins": 119,
+        "draws": 64,
+        "score_gain": -0.05790096
+      },
+      "candidate": "1c58ebd2f888ef025156"
+    },
+    {
+      "generation": 26,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.052041576000000034,
+      "anchor": {
+        "matches": 250,
+        "wins": 188,
+        "reference_wins": 190,
+        "draws": 35,
+        "score_gain": 0.013721463999999996
+      },
+      "candidate": "ff9a5121e4c344152914"
+    },
+    {
+      "generation": 26,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.00046601300000004287,
+      "anchor": {
+        "matches": 750,
+        "wins": 112,
+        "reference_wins": 122,
+        "draws": 98,
+        "score_gain": -0.018436441333333334
+      },
+      "candidate": "cfefade0f3e4299f4656"
+    },
+    {
+      "generation": 27,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 185,
+        "reference_wins": 185,
+        "draws": 28,
+        "score_gain": 0.0
+      },
+      "candidate": "985ffd96d8197179f47a"
+    },
+    {
+      "generation": 27,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.013722717999999912,
+      "anchor": {
+        "matches": 750,
+        "wins": 116,
+        "reference_wins": 119,
+        "draws": 96,
+        "score_gain": -0.010992977333333332
+      },
+      "candidate": "4f4b5b2449e944b63d4b"
+    },
+    {
+      "generation": 28,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.042249613333333436,
+      "anchor": {
+        "matches": 250,
+        "wins": 190,
+        "reference_wins": 200,
+        "draws": 28,
+        "score_gain": -0.084742368
+      },
+      "candidate": "3872d9123154e61184a3"
+    },
+    {
+      "generation": 28,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 95,
+        "reference_wins": 95,
+        "draws": 87,
+        "score_gain": 0.0
+      },
+      "candidate": "f6211f3765deb99f82fb"
+    },
+    {
+      "generation": 29,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.016227830666666665,
+      "anchor": {
+        "matches": 250,
+        "wins": 188,
+        "reference_wins": 192,
+        "draws": 28,
+        "score_gain": -0.048474532
+      },
+      "candidate": "9998ec671b10a2f53008"
+    },
+    {
+      "generation": 29,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.005657641999999963,
+      "anchor": {
+        "matches": 750,
+        "wins": 124,
+        "reference_wins": 119,
+        "draws": 83,
+        "score_gain": 0.004771949333333334
+      },
+      "candidate": "3b80149608873e5ab2ab"
+    },
+    {
+      "generation": 30,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.001858544000000073,
+      "anchor": {
+        "matches": 250,
+        "wins": 189,
+        "reference_wins": 188,
+        "draws": 31,
+        "score_gain": 0.020100208000000005
+      },
+      "candidate": "3347ef1593fd25e6adc3"
+    },
+    {
+      "generation": 30,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.04425243100000009,
+      "anchor": {
+        "matches": 750,
+        "wins": 115,
+        "reference_wins": 131,
+        "draws": 80,
+        "score_gain": -0.06100808266666667
+      },
+      "candidate": "4416d8121d6b7cccebab"
+    },
+    {
+      "generation": 31,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.07617910933333338,
+      "anchor": {
+        "matches": 250,
+        "wins": 192,
+        "reference_wins": 202,
+        "draws": 27,
+        "score_gain": -0.06028951600000001
+      },
+      "candidate": "64de97d242789ddeaed7"
+    },
+    {
+      "generation": 31,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.0005392349999999713,
+      "anchor": {
+        "matches": 750,
+        "wins": 114,
+        "reference_wins": 110,
+        "draws": 86,
+        "score_gain": 0.003829784000000003
+      },
+      "candidate": "a363a57490050bf9ea3f"
+    },
+    {
+      "generation": 32,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.08538037199999993,
+      "anchor": {
+        "matches": 250,
+        "wins": 192,
+        "reference_wins": 183,
+        "draws": 34,
+        "score_gain": 0.100768784
+      },
+      "candidate": "7899f8f15527ef30924b"
+    },
+    {
+      "generation": 32,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.0037796410000000558,
+      "anchor": {
+        "matches": 750,
+        "wins": 111,
+        "reference_wins": 113,
+        "draws": 99,
+        "score_gain": -0.005285369333333333
+      },
+      "candidate": "06a44e2220d4d8a383eb"
+    },
+    {
+      "generation": 33,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.033898556000000024,
+      "anchor": {
+        "matches": 250,
+        "wins": 198,
+        "reference_wins": 190,
+        "draws": 26,
+        "score_gain": 0.04370632
+      },
+      "candidate": "d85ffa636d34783a99c3"
+    },
+    {
+      "generation": 33,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.009812049999999961,
+      "anchor": {
+        "matches": 750,
+        "wins": 107,
+        "reference_wins": 110,
+        "draws": 80,
+        "score_gain": -0.02755992
+      },
+      "candidate": "cb2da865b7f6d00a27ed"
+    },
+    {
+      "generation": 34,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 181,
+        "reference_wins": 181,
+        "draws": 41,
+        "score_gain": 0.0
+      },
+      "candidate": "d85ffa636d34783a99c3"
+    },
+    {
+      "generation": 34,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.021844069999999993,
+      "anchor": {
+        "matches": 750,
+        "wins": 114,
+        "reference_wins": 114,
+        "draws": 115,
+        "score_gain": 0.0046803853333333345
+      },
+      "candidate": "daaa3cea0968e23f9a61"
+    },
+    {
+      "generation": 35,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.011243181333333352,
+      "anchor": {
+        "matches": 250,
+        "wins": 205,
+        "reference_wins": 204,
+        "draws": 23,
+        "score_gain": 0.0104532
+      },
+      "candidate": "3c9aa4f3d8265a1a558b"
+    },
+    {
+      "generation": 35,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.009275507999999988,
+      "anchor": {
+        "matches": 750,
+        "wins": 89,
+        "reference_wins": 98,
+        "draws": 60,
+        "score_gain": -0.024506120000000003
+      },
+      "candidate": "8b918406e32cfae33a61"
+    },
+    {
+      "generation": 36,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.006881232000000015,
+      "anchor": {
+        "matches": 250,
+        "wins": 195,
+        "reference_wins": 195,
+        "draws": 24,
+        "score_gain": 0.004828003999999994
+      },
+      "candidate": "3cad21d6c357deddfaf2"
+    },
+    {
+      "generation": 36,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.006999954000000086,
+      "anchor": {
+        "matches": 750,
+        "wins": 128,
+        "reference_wins": 130,
+        "draws": 63,
+        "score_gain": -0.00918745466666667
+      },
+      "candidate": "4acde54a16c2199bde84"
+    },
+    {
+      "generation": 37,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.03002457066666675,
+      "anchor": {
+        "matches": 250,
+        "wins": 186,
+        "reference_wins": 181,
+        "draws": 33,
+        "score_gain": 0.048522612
+      },
+      "candidate": "841b796cd13b6939dd90"
+    },
+    {
+      "generation": 37,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.031577823000000005,
+      "anchor": {
+        "matches": 750,
+        "wins": 98,
+        "reference_wins": 97,
+        "draws": 105,
+        "score_gain": 0.002750173333333333
+      },
+      "candidate": "b2d2097e48aeab42596d"
+    },
+    {
+      "generation": 38,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 191,
+        "reference_wins": 191,
+        "draws": 30,
+        "score_gain": 0.0
+      },
+      "candidate": "841b796cd13b6939dd90"
+    },
+    {
+      "generation": 38,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.04451004000000003,
+      "anchor": {
+        "matches": 750,
+        "wins": 113,
+        "reference_wins": 115,
+        "draws": 77,
+        "score_gain": -0.0008976573333333304
+      },
+      "candidate": "be9d15f93c800a183250"
+    },
+    {
+      "generation": 39,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.029692921333333344,
+      "anchor": {
+        "matches": 250,
+        "wins": 179,
+        "reference_wins": 187,
+        "draws": 34,
+        "score_gain": -0.069257264
+      },
+      "candidate": "aa965623eff2b224fe47"
+    },
+    {
+      "generation": 39,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 104,
+        "reference_wins": 104,
+        "draws": 104,
+        "score_gain": 0.0
+      },
+      "candidate": "daaa3cea0968e23f9a61"
+    },
+    {
+      "generation": 40,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.0030151506666666883,
+      "anchor": {
+        "matches": 250,
+        "wins": 195,
+        "reference_wins": 181,
+        "draws": 24,
+        "score_gain": 0.08222004
+      },
+      "candidate": "5465fffae87f4d0ea9da"
+    },
+    {
+      "generation": 40,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.03376086499999997,
+      "anchor": {
+        "matches": 750,
+        "wins": 121,
+        "reference_wins": 121,
+        "draws": 98,
+        "score_gain": 0.001577593333333334
+      },
+      "candidate": "24a4d1352d50f443b5a5"
+    },
+    {
+      "generation": 41,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.02615973066666666,
+      "anchor": {
+        "matches": 250,
+        "wins": 194,
+        "reference_wins": 193,
+        "draws": 28,
+        "score_gain": -0.003606107999999993
+      },
+      "candidate": "3c88ba9b087ebd3e0354"
+    },
+    {
+      "generation": 41,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 111,
+        "reference_wins": 111,
+        "draws": 101,
+        "score_gain": 0.0
+      },
+      "candidate": "daaa3cea0968e23f9a61"
+    },
+    {
+      "generation": 42,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.00772775333333342,
+      "anchor": {
+        "matches": 250,
+        "wins": 193,
+        "reference_wins": 196,
+        "draws": 28,
+        "score_gain": -0.01761003199999999
+      },
+      "candidate": "1f9044f5f34196477bd1"
+    },
+    {
+      "generation": 42,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 95,
+        "reference_wins": 95,
+        "draws": 84,
+        "score_gain": 0.0
+      },
+      "candidate": "daaa3cea0968e23f9a61"
+    },
+    {
+      "generation": 43,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.049874622666666646,
+      "anchor": {
+        "matches": 250,
+        "wins": 198,
+        "reference_wins": 197,
+        "draws": 23,
+        "score_gain": 0.018102800000000006
+      },
+      "candidate": "319ba914a449f7d7503a"
+    },
+    {
+      "generation": 43,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 124,
+        "reference_wins": 124,
+        "draws": 65,
+        "score_gain": 0.0
+      },
+      "candidate": "daaa3cea0968e23f9a61"
+    },
+    {
+      "generation": 44,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.012980798666666682,
+      "anchor": {
+        "matches": 250,
+        "wins": 189,
+        "reference_wins": 195,
+        "draws": 25,
+        "score_gain": -0.05375489600000001
+      },
+      "candidate": "61d231fba4a94a428c68"
+    },
+    {
+      "generation": 44,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.01794903999999997,
+      "anchor": {
+        "matches": 750,
+        "wins": 119,
+        "reference_wins": 131,
+        "draws": 79,
+        "score_gain": -0.04334875199999999
+      },
+      "candidate": "62e0b21dcd412f4c6c7f"
+    },
+    {
+      "generation": 45,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.05659607999999994,
+      "anchor": {
+        "matches": 250,
+        "wins": 204,
+        "reference_wins": 197,
+        "draws": 23,
+        "score_gain": 0.05110895599999999
+      },
+      "candidate": "66d4c993d207891ab510"
+    },
+    {
+      "generation": 45,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0026492489999999647,
+      "anchor": {
+        "matches": 750,
+        "wins": 107,
+        "reference_wins": 121,
+        "draws": 73,
+        "score_gain": -0.039311172000000005
+      },
+      "candidate": "8d22c05fbf3c01d1c952"
+    },
+    {
+      "generation": 46,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.016958401333333373,
+      "anchor": {
+        "matches": 250,
+        "wins": 202,
+        "reference_wins": 200,
+        "draws": 23,
+        "score_gain": 0.035208368
+      },
+      "candidate": "500aea3ab57e772b28b2"
+    },
+    {
+      "generation": 46,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.0076924550000000425,
+      "anchor": {
+        "matches": 750,
+        "wins": 123,
+        "reference_wins": 118,
+        "draws": 73,
+        "score_gain": 0.020888462666666663
+      },
+      "candidate": "b693db83c1ff93131ed8"
+    },
+    {
+      "generation": 47,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.06756653200000007,
+      "anchor": {
+        "matches": 250,
+        "wins": 184,
+        "reference_wins": 192,
+        "draws": 27,
+        "score_gain": -0.077868884
+      },
+      "candidate": "718a0ba016ea2ac3df48"
+    },
+    {
+      "generation": 47,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.042568103999999996,
+      "anchor": {
+        "matches": 750,
+        "wins": 132,
+        "reference_wins": 118,
+        "draws": 83,
+        "score_gain": 0.034921593333333334
+      },
+      "candidate": "9073b75e400819fd913b"
+    },
+    {
+      "generation": 48,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 195,
+        "reference_wins": 195,
+        "draws": 28,
+        "score_gain": 0.0
+      },
+      "candidate": "66d4c993d207891ab510"
+    },
+    {
+      "generation": 48,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.02476711999999992,
+      "anchor": {
+        "matches": 750,
+        "wins": 94,
+        "reference_wins": 103,
+        "draws": 73,
+        "score_gain": -0.021557947999999997
+      },
+      "candidate": "f811fa6de0079e465039"
+    },
+    {
+      "generation": 49,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 195,
+        "reference_wins": 195,
+        "draws": 28,
+        "score_gain": 0.0
+      },
+      "candidate": "66d4c993d207891ab510"
+    },
+    {
+      "generation": 49,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.007006356999999963,
+      "anchor": {
+        "matches": 750,
+        "wins": 106,
+        "reference_wins": 115,
+        "draws": 86,
+        "score_gain": -0.023353121333333334
+      },
+      "candidate": "7207d42dbb496dd81038"
+    },
+    {
+      "generation": 50,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 184,
+        "reference_wins": 184,
+        "draws": 27,
+        "score_gain": 0.0
+      },
+      "candidate": "66d4c993d207891ab510"
+    },
+    {
+      "generation": 50,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.007728433999999895,
+      "anchor": {
+        "matches": 750,
+        "wins": 124,
+        "reference_wins": 129,
+        "draws": 63,
+        "score_gain": -0.013409854666666667
+      },
+      "candidate": "1255cef072f61117ab73"
+    },
+    {
+      "generation": 51,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.027422363999999977,
+      "anchor": {
+        "matches": 250,
+        "wins": 202,
+        "reference_wins": 211,
+        "draws": 28,
+        "score_gain": -0.055608564
+      },
+      "candidate": "21d6271b0edd60001db6"
+    },
+    {
+      "generation": 51,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.03221670600000004,
+      "anchor": {
+        "matches": 750,
+        "wins": 87,
+        "reference_wins": 91,
+        "draws": 82,
+        "score_gain": -0.014886078666666667
+      },
+      "candidate": "e52d01fd08e0d988437a"
+    },
+    {
+      "generation": 52,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0011589053333332933,
+      "anchor": {
+        "matches": 250,
+        "wins": 192,
+        "reference_wins": 195,
+        "draws": 24,
+        "score_gain": -0.05322840000000001
+      },
+      "candidate": "ff12e62c83ef9a6cf9b7"
+    },
+    {
+      "generation": 52,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.008910752999999993,
+      "anchor": {
+        "matches": 750,
+        "wins": 102,
+        "reference_wins": 97,
+        "draws": 88,
+        "score_gain": 0.01390819866666667
+      },
+      "candidate": "d191479610a45120c221"
+    },
+    {
+      "generation": 53,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.07439662266666669,
+      "anchor": {
+        "matches": 250,
+        "wins": 193,
+        "reference_wins": 203,
+        "draws": 25,
+        "score_gain": -0.075162592
+      },
+      "candidate": "15c7be25e62055f0a8ad"
+    },
+    {
+      "generation": 53,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.024767647000000004,
+      "anchor": {
+        "matches": 750,
+        "wins": 123,
+        "reference_wins": 129,
+        "draws": 67,
+        "score_gain": -0.01935162
+      },
+      "candidate": "aea2c506ff4232be72db"
+    },
+    {
+      "generation": 54,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.002843357333333296,
+      "anchor": {
+        "matches": 250,
+        "wins": 204,
+        "reference_wins": 200,
+        "draws": 24,
+        "score_gain": 0.03537817199999999
+      },
+      "candidate": "143f667a1ce7a8fbb754"
+    },
+    {
+      "generation": 54,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.011222424999999925,
+      "anchor": {
+        "matches": 750,
+        "wins": 116,
+        "reference_wins": 117,
+        "draws": 74,
+        "score_gain": -0.0019099146666666672
+      },
+      "candidate": "cc17ae0eeedab0946185"
+    },
+    {
+      "generation": 55,
+      "role": "player",
+      "accepted": true,
+      "league_gain": 0.009701549333333337,
+      "anchor": {
+        "matches": 250,
+        "wins": 190,
+        "reference_wins": 184,
+        "draws": 28,
+        "score_gain": 0.058983928
+      },
+      "candidate": "d1f6ab75e07f07e503aa"
+    },
+    {
+      "generation": 55,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.041083607999999994,
+      "anchor": {
+        "matches": 750,
+        "wins": 130,
+        "reference_wins": 118,
+        "draws": 74,
+        "score_gain": 0.014336237333333338
+      },
+      "candidate": "2fb7c04e750bc70ff563"
+    },
+    {
+      "generation": 56,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.013649860000000014,
+      "anchor": {
+        "matches": 250,
+        "wins": 188,
+        "reference_wins": 194,
+        "draws": 36,
+        "score_gain": -0.015595063999999999
+      },
+      "candidate": "3b1252018e7170652c6e"
+    },
+    {
+      "generation": 56,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.026648086000000015,
+      "anchor": {
+        "matches": 750,
+        "wins": 115,
+        "reference_wins": 118,
+        "draws": 92,
+        "score_gain": -0.012276110666666666
+      },
+      "candidate": "00f5d9bd3a6bbb19908f"
+    },
+    {
+      "generation": 57,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.042702958666666624,
+      "anchor": {
+        "matches": 250,
+        "wins": 185,
+        "reference_wins": 194,
+        "draws": 25,
+        "score_gain": -0.090856888
+      },
+      "candidate": "345f889408b92c6ccfa9"
+    },
+    {
+      "generation": 57,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.011104018000000049,
+      "anchor": {
+        "matches": 750,
+        "wins": 132,
+        "reference_wins": 136,
+        "draws": 69,
+        "score_gain": -0.014636544
+      },
+      "candidate": "dbd7ba29e5dd736df625"
+    },
+    {
+      "generation": 58,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.062033642666666666,
+      "anchor": {
+        "matches": 250,
+        "wins": 187,
+        "reference_wins": 191,
+        "draws": 24,
+        "score_gain": -0.05302718799999999
+      },
+      "candidate": "8b90648a80426cd7da4c"
+    },
+    {
+      "generation": 58,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0015247660000000662,
+      "anchor": {
+        "matches": 750,
+        "wins": 140,
+        "reference_wins": 134,
+        "draws": 62,
+        "score_gain": 0.004730332
+      },
+      "candidate": "5457edf32733b5dde507"
+    },
+    {
+      "generation": 59,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 199,
+        "reference_wins": 199,
+        "draws": 28,
+        "score_gain": 0.0
+      },
+      "candidate": "d1f6ab75e07f07e503aa"
+    },
+    {
+      "generation": 59,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 750,
+        "wins": 97,
+        "reference_wins": 97,
+        "draws": 77,
+        "score_gain": 0.0
+      },
+      "candidate": "d191479610a45120c221"
+    },
+    {
+      "generation": 60,
+      "role": "player",
+      "accepted": false,
+      "league_gain": 0.0,
+      "anchor": {
+        "matches": 250,
+        "wins": 197,
+        "reference_wins": 197,
+        "draws": 26,
+        "score_gain": 0.0
+      },
+      "candidate": "d1f6ab75e07f07e503aa"
+    },
+    {
+      "generation": 60,
+      "role": "enemy",
+      "accepted": false,
+      "league_gain": -0.009428919999999952,
+      "anchor": {
+        "matches": 750,
+        "wins": 100,
+        "reference_wins": 101,
+        "draws": 81,
+        "score_gain": 0.000667577333333334
+      },
+      "candidate": "bb4bf20ab3fcf77b0aac"
+    },
+    {
+      "generation": 61,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.021425782666666726,
+      "anchor": {
+        "matches": 250,
+        "wins": 185,
+        "reference_wins": 193,
+        "draws": 29,
+        "score_gain": -0.049876728
+      },
+      "candidate": "6768aef39a27e819465e"
+    },
+    {
+      "generation": 61,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.02968120899999993,
+      "anchor": {
+        "matches": 750,
+        "wins": 127,
+        "reference_wins": 125,
+        "draws": 80,
+        "score_gain": 0.010450542666666666
+      },
+      "candidate": "cc81a934460b7cf00c83"
+    },
+    {
+      "generation": 62,
+      "role": "player",
+      "accepted": false,
+      "league_gain": -0.019742306666666654,
+      "anchor": {
+        "matches": 250,
+        "wins": 193,
+        "reference_wins": 191,
+        "draws": 23,
+        "score_gain": -0.019833472
+      },
+      "candidate": "49d0cbbf88b30c3e22fb"
+    },
+    {
+      "generation": 62,
+      "role": "enemy",
+      "accepted": true,
+      "league_gain": 0.005997998000000004,
+      "anchor": {
+        "matches": 750,
+        "wins": 119,
+        "reference_wins": 111,
+        "draws": 81,
+        "score_gain": 0.024158016000000004
+      },
+      "candidate": "d953a9c84eeb8d53f38e"
+    }
+  ]
+}

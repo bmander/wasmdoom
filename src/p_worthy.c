@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <stdint.h>
 #include <stdlib.h>
+#include <math.h>
 #include "doomstat.h"
 #include "p_local.h"
 #include "p_worthy.h"
@@ -10,8 +11,11 @@
 #include "s_sound.h"
 
 static int enabled;
+static int deterministic_fire;
+void P_WorthySetDeterministicFire(int value) { deterministic_fire = value != 0; }
 static policy_net_t network;
 void P_WorthySetNetwork(const float *weights) { P_PolicyNetLoad(&network, weights); }
+void P_WorthySetRecurrentNetwork(const float *weights) { P_PolicyNetLoadRecurrent(&network, weights); }
 static const worthy_policy_t default_policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100, 288, 128, 0};
 static worthy_policy_t policy = {288, 20, 70, 35, 6, 64, 24, 66, 0, 100, 288, 128, 0};
 static int bounded(int value, int low, int high)
@@ -52,6 +56,22 @@ static boolean eligible(mobj_t *actor)
     return P_WorthyEnabled() && actor && !actor->player
         && (actor->flags & MF_COUNTKILL) && actor->health > 0
         && actor->target && actor->target->player && actor->target->health > 0;
+}
+
+boolean P_WorthyDeterministicFire(mobj_t *actor)
+{
+    return deterministic_fire && eligible(actor);
+}
+
+angle_t P_WorthyShotAngle(mobj_t *actor, angle_t aim, angle_t spread, int pellet)
+{
+    if (!deterministic_fire || !eligible(actor)
+        || (actor->target->flags & MF_SHADOW) || !P_CheckSight(actor, actor->target))
+        return aim + spread;
+    // Rifle/chaingun shots go down the sight line; shotgun pellets form a
+    // symmetric two-degree fan with one pellet exactly on target.
+    if (actor->type == MT_SHOTGUY) return aim + (pellet - 1) * (ANG45 / 45);
+    return aim;
 }
 
 static unsigned personality(mobj_t *actor)
@@ -116,6 +136,30 @@ void P_WorthyAim(mobj_t *source, mobj_t *target, fixed_t speed,
     }
     remember(source, target);
     if (target->flags & MF_SHADOW) return;
+    if (deterministic_fire) {
+        // Solve |relative_position + velocity * t| = projectile_speed * t.
+        // Observe only visible motion. Prediction is capped and never homes.
+        double rx = (double)target->x - source->x, ry = (double)target->y - source->y;
+        double vx = target->momx, vy = target->momy, s = speed;
+        double a = vx * vx + vy * vy - s * s;
+        double b = 2 * (rx * vx + ry * vy), c = rx * rx + ry * ry;
+        double t = sqrt(c) / s;
+        if (fabs(a) < 1) {
+            if (b < 0) t = -c / b;
+        } else if (b * b - 4 * a * c >= 0) {
+            double root = sqrt(b * b - 4 * a * c);
+            double first = (-b - root) / (2 * a), second = (-b + root) / (2 * a);
+            if (first > 0 && (second <= 0 || first < second)) t = first;
+            else if (second > 0) t = second;
+        }
+        if (t > TICRATE) t = TICRATE;
+        double dx = vx * t, dy = vy * t, length = sqrt(dx * dx + dy * dy);
+        double cap = 256.0 * FRACUNIT;
+        if (length > cap) { dx *= cap / length; dy *= cap / length; }
+        *x = target->x + (fixed_t)dx;
+        *y = target->y + (fixed_t)dy;
+        return;
+    }
     int flight = P_AproxDistance(target->x - source->x, target->y - source->y) / speed;
     if (flight > 16) flight = 16;
     // Partial, capped prediction: changing direction still beats the shot.
@@ -181,15 +225,15 @@ static void cover_destination(mobj_t *actor, int state, int duration)
 
 // Return true while this behavior owns movement/holding. FIRE falls through to
 // the ordinary attack decision, then the completed burst returns to hiding.
-static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering, int cover_use)
+static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering, const worthy_policy_t *choice)
 {
     unsigned seed = personality(actor);
     if (actor->worthy.cover_state == WORTHY_OPEN) {
-        if (seed % 100 >= (unsigned)cover_use) return false;
+        if (seed % 100 >= (unsigned)choice->cover_use) return false;
         if (!visible || leveltime < actor->worthy.cover_retry
             || P_AproxDistance(actor->worthy.x - actor->x, actor->worthy.y - actor->y) < 128 * FRACUNIT)
             return false;
-        actor->worthy.cover_retry = leveltime + policy.cover_retry + seed % TICRATE;
+        actor->worthy.cover_retry = leveltime + choice->cover_retry + seed % TICRATE;
         if (!P_WorthyFindCover(actor)) return false;
         actor->worthy.cover_state = WORTHY_HIDE;
         actor->worthy.cover_until = leveltime + 4 * TICRATE;
@@ -223,9 +267,9 @@ static boolean use_cover(mobj_t *actor, boolean visible, boolean recovering, int
     if (P_AproxDistance(gx - actor->x, gy - actor->y) <= reach) {
         if (hiding) {
             if (visible) { abandon_cover(actor); return false; }
-            cover_destination(actor, WORTHY_WAIT, policy.cover_wait + seed % 23);
+            cover_destination(actor, WORTHY_WAIT, choice->cover_wait + seed % 23);
         } else {
-            cover_destination(actor, WORTHY_FIRE, policy.peek_time);
+            cover_destination(actor, WORTHY_FIRE, choice->peek_time);
         }
         actor->movedir = 8;
         return actor->worthy.cover_state != WORTHY_FIRE;
@@ -279,7 +323,7 @@ boolean P_WorthyChase(mobj_t *actor)
             || actor->type == MT_CHAINGUY || actor->type == MT_SPIDER;
         fixed_t norm = distance > FRACUNIT ? distance : FRACUNIT;
         fixed_t ux = FixedDiv(dx, norm), uy = FixedDiv(dy, norm);
-        float features[POLICY_INPUTS] = {
+        float features[TACTIC_INPUTS] = {
             2.0f * actor->health / actor->info->spawnhealth - 1,
             distance / (512.0f * FRACUNIT), ranged ? 1 : -1, hitscan ? 1 : -1,
             visible ? 1 : -1, threatened ? 1 : -1,
@@ -289,21 +333,33 @@ boolean P_WorthyChase(mobj_t *actor)
             (leveltime - actor->worthy.contact_time) / (8.0f * TICRATE),
             actor->worthy.blocked / 3.0f,
             (actor->worthy.next_attack - leveltime) / (float)TICRATE
-        }, output[POLICY_OUTPUTS];
-        P_PolicyNetEvaluate(&network, features, output);
+        }, output[TACTIC_OUTPUTS] = {0};
+        if (network.recurrent) {
+            P_PolicyContext(actor, visible ? target : NULL, actor->worthy.neural_health, features + POLICY_INPUTS);
+            actor->worthy.neural_health = actor->health;
+            P_PolicyNetRecurrent(&network, features, actor->worthy.neural_memory, output);
+            choice.cover_wait = bounded(policy.cover_wait + (int)(output[5] * 40), 12, 70);
+            choice.cover_retry = bounded(policy.cover_retry + (int)(output[6] * 70), 35, 140);
+            choice.peek_time = bounded(policy.peek_time + (int)(output[7] * 35), 18, 70);
+            choice.dodge_reaction = bounded(policy.dodge_reaction + (int)(output[8] * 10), 6, 16);
+            choice.flank = bounded(policy.flank + (int)(output[9] * 96), -96, 96);
+        } else P_PolicyNetEvaluate(&network, features, output);
         choice.range = bounded(policy.range + (int)(output[0] * 192), 160, 400);
         choice.hitscan_range = bounded(policy.hitscan_range + (int)(output[0] * 192), 96, 512);
         choice.cover_use = bounded(policy.cover_use + (int)(output[1] * 100), 0, 100);
-        if (output[2] > .15f) choice.pressure_fire = 1;
-        if (output[2] < -.15f) choice.pressure_fire = 0;
+        if (!deterministic_fire) {
+            if (output[2] > .15f) choice.pressure_fire = 1;
+            if (output[2] < -.15f) choice.pressure_fire = 0;
+        }
         choice.pursuit_lead = bounded(policy.pursuit_lead + (int)(output[3] * 12), 0, 12);
         choice.wounded_bonus = bounded(policy.wounded_bonus + (int)(output[4] * 192), -128, 192);
     }
-    if (ranged && use_cover(actor, visible, recovering, choice.cover_use)) return true;
+    dodge = threatened && leveltime + 1 - actor->worthy.threat_since >= choice.dodge_reaction;
+    if (ranged && use_cover(actor, visible, recovering, &choice)) return true;
     if (ranged && visible && !recovering && leveltime >= actor->worthy.next_attack
-        && (choice.pressure_fire || actor->worthy.cover_state == WORTHY_FIRE || !dodge || ((leveltime / 12 + seed) & 1))
+        && (deterministic_fire || choice.pressure_fire || actor->worthy.cover_state == WORTHY_FIRE || !dodge || ((leveltime / 12 + seed) & 1))
         && P_WorthyCanFire(actor) && P_CheckMissileRange(actor)) {
-        actor->worthy.next_attack = leveltime + policy.attack_delay + seed % 12;
+        actor->worthy.next_attack = leveltime + (deterministic_fire ? default_policy.attack_delay : policy.attack_delay) + seed % 12;
         actor->flags |= MF_JUSTATTACKED;
         P_SetMobjState(actor, actor->info->missilestate);
         return true;
@@ -339,7 +395,7 @@ boolean P_WorthyChase(mobj_t *actor)
             }
         } else if (seed % 3) {
             // A fixed approach offset, not a new sideways impulse each step.
-            gx -= uy * side * policy.flank; gy += ux * side * policy.flank;
+            gx -= uy * side * choice.flank; gy += ux * side * choice.flank;
         }
         if (dodge) {
             gx = actor->x - uy * side * 96;

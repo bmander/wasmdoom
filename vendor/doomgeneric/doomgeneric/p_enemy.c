@@ -245,7 +245,7 @@ boolean P_CheckMissileRange (mobj_t* actor)
     if (actor->type == MT_CYBORG && dist > 160)
 	dist = 160;
 		
-    if (P_Random () < dist)
+    if (!P_WorthyDeterministicFire(actor) && P_Random () < dist)
 	return false;
 		
     return true;
@@ -803,7 +803,7 @@ void A_PosAttack (mobj_t* actor)
     slope = P_AimLineAttack (actor, angle, MISSILERANGE);
 
     S_StartSound (actor, sfx_pistol);
-    angle += (P_Random()-P_Random())<<20;
+    angle = P_WorthyShotAngle(actor, angle, (P_Random()-P_Random())<<20, 0);
     damage = ((P_Random()%5)+1)*3;
     P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
 }
@@ -826,7 +826,7 @@ void A_SPosAttack (mobj_t* actor)
 
     for (i=0 ; i<3 ; i++)
     {
-	angle = bangle + ((P_Random()-P_Random())<<20);
+	angle = P_WorthyShotAngle(actor, bangle, (P_Random()-P_Random())<<20, i);
 	damage = ((P_Random()%5)+1)*3;
 	P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
     }
@@ -847,7 +847,7 @@ void A_CPosAttack (mobj_t* actor)
     bangle = actor->angle;
     slope = P_AimLineAttack (actor, bangle, MISSILERANGE);
 
-    angle = bangle + ((P_Random()-P_Random())<<20);
+    angle = P_WorthyShotAngle(actor, bangle, (P_Random()-P_Random())<<20, 0);
     damage = ((P_Random()%5)+1)*3;
     P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
 }
