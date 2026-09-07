@@ -28,6 +28,7 @@
 #include "doomdef.h"
 #include "p_local.h"
 #include "p_worthy.h"
+#include "p_mods.h"
 
 #include "s_sound.h"
 
@@ -789,6 +790,19 @@ void A_FaceTarget (mobj_t* actor)
 //
 // A_PosAttack
 //
+static boolean rocket_marines;
+
+void P_SetRocketMarines(int enabled)
+{
+    rocket_marines = enabled != 0;
+}
+
+boolean P_IsRocketMarine(const mobj_t *actor)
+{
+    return rocket_marines && actor->type == MT_POSSESSED
+        && !demoplayback && !demorecording && !netgame;
+}
+
 void A_PosAttack (mobj_t* actor)
 {
     int		angle;
@@ -799,11 +813,16 @@ void A_PosAttack (mobj_t* actor)
 	return;
 		
     A_FaceTarget (actor);
+    if (P_IsRocketMarine(actor))
+    {
+        P_SpawnMissile(actor, actor->target, MT_ROCKET);
+        return;
+    }
     angle = actor->angle;
     slope = P_AimLineAttack (actor, angle, MISSILERANGE);
 
     S_StartSound (actor, sfx_pistol);
-    angle = P_WorthyShotAngle(actor, angle, (P_Random()-P_Random())<<20, 0);
+    angle += (P_Random()-P_Random())<<20;
     damage = ((P_Random()%5)+1)*3;
     P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
 }
@@ -826,7 +845,7 @@ void A_SPosAttack (mobj_t* actor)
 
     for (i=0 ; i<3 ; i++)
     {
-	angle = P_WorthyShotAngle(actor, bangle, (P_Random()-P_Random())<<20, i);
+	angle = bangle + ((P_Random()-P_Random())<<20);
 	damage = ((P_Random()%5)+1)*3;
 	P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
     }
@@ -847,7 +866,7 @@ void A_CPosAttack (mobj_t* actor)
     bangle = actor->angle;
     slope = P_AimLineAttack (actor, bangle, MISSILERANGE);
 
-    angle = P_WorthyShotAngle(actor, bangle, (P_Random()-P_Random())<<20, 0);
+    angle = bangle + ((P_Random()-P_Random())<<20);
     damage = ((P_Random()%5)+1)*3;
     P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
 }

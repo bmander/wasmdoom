@@ -16,7 +16,6 @@ void P_WorthySetRecurrentNetwork(const float *weights);
 // Opt-in hybrid combat; legacy offline checkpoints retain their original rules.
 void P_WorthySetDeterministicFire(int enabled);
 boolean P_WorthyDeterministicFire(mobj_t *actor);
-angle_t P_WorthyShotAngle(mobj_t *actor, angle_t aim, angle_t spread, int pellet);
 void P_PolicyContext(mobj_t *actor, mobj_t *visible_target, int previous_health, float *output);
 boolean P_WorthyEnabled(void);
 boolean P_WorthyChase(mobj_t *actor);

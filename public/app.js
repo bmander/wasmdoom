@@ -20,6 +20,30 @@ $('worthy').addEventListener('change', () => {
   try { localStorage.setItem('doom-worthy-adversaries', String($('worthy').checked)); } catch { /* Optional preference. */ }
   updateWorthy();
 });
+try { $('rocket-marines').checked = localStorage.getItem('doom-rocket-marines') === 'true'; } catch { /* Optional preference. */ }
+function updateRocketMarines() {
+  const enabled = $('rocket-marines').checked;
+  if (engine && !failed) engine._doom_rocket_marines(Number(enabled));
+  $('rocket-marines-state').textContent = enabled ? 'ROCKETS ISSUED' : 'STANDARD SIDEARMS';
+  $('rocket-marines').closest('.adversaries').classList.toggle('enabled', enabled);
+}
+updateRocketMarines();
+$('rocket-marines').addEventListener('change', () => {
+  try { localStorage.setItem('doom-rocket-marines', String($('rocket-marines').checked)); } catch { /* Optional preference. */ }
+  updateRocketMarines();
+});
+try { $('mirror').checked = localStorage.getItem('doom-mirror') === 'true'; } catch { /* Optional preference. */ }
+function updateMirror() {
+  const enabled = $('mirror').checked;
+  if (engine && !failed) engine._doom_mirror(Number(enabled));
+  $('mirror-state').textContent = enabled ? 'THROUGH THE LOOKING GLASS' : 'ORIGINAL WORLD';
+  $('mirror').closest('.adversaries').classList.toggle('enabled', enabled);
+}
+updateMirror();
+$('mirror').addEventListener('change', () => {
+  try { localStorage.setItem('doom-mirror', String($('mirror').checked)); } catch { /* Optional preference. */ }
+  updateMirror();
+});
 const held = new Map();
 const keymap = {ArrowUp:173, KeyW:173, ArrowDown:175, KeyS:175, ArrowLeft:172, ArrowRight:174, KeyA:160, KeyD:161, ControlLeft:163, ControlRight:163, KeyF:163, Space:162, KeyE:162, ShiftLeft:182, ShiftRight:182, AltLeft:184, AltRight:184, Enter:13, Escape:27, Tab:9, Backspace:127, Minus:45, Equal:61};
 for (let i = 0; i < 10; i++) keymap[`Digit${i}`] = 48 + i;
@@ -126,6 +150,8 @@ $('play').addEventListener('click', async () => {
     engine.FS.writeFile('/game.wad', bytes);
     engine._doom_resolution(Number($('resolution').value));
     updateWorthy();
+    updateRocketMarines();
+    updateMirror();
     saves = await connectSaves(engine.FS, bytes, (message, retry) => {
       $('save-state').textContent = message;
       $('retry-save').hidden = !retry;

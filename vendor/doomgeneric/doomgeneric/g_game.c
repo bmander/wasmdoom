@@ -1,3 +1,4 @@
+// WasmDOOM: Mirror, Mirror horizontal movement mapping, 2026-09-07.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -67,6 +68,7 @@
 // SKY handling - still the wrong place.
 #include "r_data.h"
 #include "r_sky.h"
+#include "r_resolution.h"
 
 
 
@@ -561,6 +563,13 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
  
     cmd->forwardmove += forward; 
     cmd->sidemove += side;
+
+    // Keep screen-left/screen-right natural in the reflected world. Apply to
+    // commands, not key bindings, so menus, held keys and mouse strafe work.
+    if (R_MirrorEnabled()) {
+        cmd->angleturn = -cmd->angleturn;
+        cmd->sidemove = -cmd->sidemove;
+    }
     
     // special buttons
     if (sendpause) 

@@ -1,3 +1,4 @@
+// WasmDOOM: Mirror, Mirror automap and pan directions, 2026-09-07.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -39,6 +40,7 @@
 // State.
 #include "doomstat.h"
 #include "r_state.h"
+#include "r_resolution.h"
 
 // Data.
 #include "dstrings.h"
@@ -400,7 +402,7 @@ void AM_changeWindowLoc(void)
 	f_oldloc.x = INT_MAX;
     }
 
-    m_x += m_paninc.x;
+    m_x += R_MirrorEnabled() ? -m_paninc.x : m_paninc.x;
     m_y += m_paninc.y;
 
     if (m_x + m_w/2 > max_x)
@@ -1322,6 +1324,7 @@ void AM_drawMarks(void)
 	    h = 6; // because something's wrong with the wad, i guess
 	    fx = CXMTOF(markpoints[i].x);
 	    fy = CYMTOF(markpoints[i].y);
+            if (R_MirrorEnabled()) fx = f_w - fx - w;
 	    if (fx >= f_x && fx <= f_w - w && fy >= f_y && fy <= f_h - h)
 		V_DrawPatch(fx, fy, marknums[i]);
 	}
@@ -1347,6 +1350,8 @@ void AM_Drawer (void)
     if (cheating==2)
 	AM_drawThings(THINGCOLORS, THINGRANGE);
     AM_drawCrosshair(XHAIRCOLORS);
+
+    R_MirrorRect(fb, f_w, 0, 0, f_w, f_h);
 
     AM_drawMarks();
 

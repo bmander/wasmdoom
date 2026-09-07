@@ -7,10 +7,12 @@
 #include "doomstat.h"
 #include "p_local.h"
 #include "p_worthy.h"
+#include "p_mods.h"
 #include "p_policy_net.h"
 #include "../src/p_worthy_champion.h"
 #include <math.h>
 #include "g_game.h"
+#include "m_random.h"
 
 static uint32_t clock_ms = 1000;
 void DG_Init(void) {}
@@ -24,10 +26,12 @@ extern void A_PosAttack(mobj_t *actor);
 extern void A_SPosAttack(mobj_t *actor);
 extern void A_CPosAttack(mobj_t *actor);
 extern boolean P_CheckMissileRange(mobj_t *actor);
+extern void Test_Mirror(void);
 
 static mobj_t *player;
 static void reset(void)
 {
+    P_SetRocketMarines(0);
     P_WorthySetEnabled(0);
     P_WorthySetDeterministicFire(0);
     G_InitNew(sk_medium, 1, 1);
@@ -58,6 +62,15 @@ static mobj_t *spawn(mobjtype_t type, int dx, int dy)
 static fixed_t distance(mobj_t *actor)
 {
     return P_AproxDistance(actor->x - player->x, actor->y - player->y);
+}
+
+static mobj_t *find_rocket(void)
+{
+    for (thinker_t *th = thinkercap.next; th != &thinkercap; th = th->next)
+        if (th->function.acp1 == (actionf_p1)P_MobjThinker
+            && ((mobj_t *)th)->type == MT_ROCKET)
+            return (mobj_t *)th;
+    return NULL;
 }
 
 int main(int argc, char **argv)
@@ -315,34 +328,38 @@ int main(int argc, char **argv)
     mobjtype_t shooters[] = {MT_POSSESSED, MT_SHOTGUY, MT_CHAINGUY};
     void (*shoot[])(mobj_t *) = {A_PosAttack, A_SPosAttack, A_CPosAttack};
     for (int kind = 0; kind < 3; kind++) {
-        reset();
-        Worthy_UseChampion(1);
-        actor = spawn(shooters[kind], -256, 96);
-        assert(P_CheckPosition(actor, actor->x, actor->y) && P_WorthyCanFire(actor));
-        player->health = players[consoleplayer].health = 100000;
-        int hits = 0;
-        for (int shot = 0; shot < 100; shot++) {
-            int health = player->health;
-            shoot[kind](actor);
-            hits += player->health < health;
-        }
-        assert(hits == 100);
-        if (kind == 0) {
-            // Invisibility and classic mode still produce ordinary aim errors.
-            for (int mode = 0; mode < 2; mode++) {
-                if (mode == 0) player->flags |= MF_SHADOW;
-                else { player->flags &= ~MF_SHADOW; Worthy_UseChampion(0); }
-                int misses = 0;
+        for (int invisible = 0; invisible < 2; invisible++) {
+            int classic_damage[100], classic_random[100];
+            for (int worthy = 0; worthy < 2; worthy++) {
+                reset();
+                Worthy_UseChampion(worthy);
+                actor = spawn(shooters[kind], -256, 96);
+                assert(P_CheckPosition(actor, actor->x, actor->y) && P_WorthyCanFire(actor));
+                if (invisible) player->flags |= MF_SHADOW;
+                players[consoleplayer].armorpoints = 0;
+                players[consoleplayer].armortype = 0;
+                M_ClearRandom();
+                int hits = 0;
                 for (int shot = 0; shot < 100; shot++) {
-                    int health = player->health;
+                    player->health = players[consoleplayer].health = 10000;
                     shoot[kind](actor);
-                    misses += player->health == health;
+                    int damage = 10000 - player->health;
+                    int random_after = P_Random();
+                    if (!worthy) {
+                        classic_damage[shot] = damage;
+                        classic_random[shot] = random_after;
+                    } else {
+                        assert(damage == classic_damage[shot]);
+                        assert(random_after == classic_random[shot]);
+                    }
+                    assert(damage >= 0 && damage <= (kind == 1 ? 45 : 15));
+                    hits += damage > 0;
                 }
-                assert(misses > 0);
+                assert(hits > 0 && hits < 100);
             }
         }
     }
-    puts("PASS: hybrid pistol, shotgun and chaingun hit 100/100 stationary targets; invisibility and classic spread remain");
+    puts("PASS: pistol, shotgun and chaingun preserve classic spread, damage and randomness with Worthy enabled, including invisibility");
     reset();
     Worthy_UseChampion(1);
     actor = spawn(MT_POSSESSED, 80, 0);
@@ -368,6 +385,79 @@ int main(int argc, char **argv)
     P_WorthyAim(actor, player, 10 * FRACUNIT, &againx, &againy);
     assert(againx == aimx && againy == aimy);
     puts("PASS: hybrid fire respects shot blockers and reaction time; projectile interception is independent of learned aim");
-    puts("All Worthy Adversaries engine scenarios passed.");
+    for (int worthy = 0; worthy < 2; worthy++) {
+        reset();
+        Worthy_UseChampion(worthy);
+        mobj_t *marine = spawn(MT_POSSESSED, -256, 96);
+        assert(!P_IsRocketMarine(marine));
+        P_SetRocketMarines(1);
+        assert(P_IsRocketMarine(marine));
+        int health_before = player->health;
+        A_PosAttack(marine);
+        mobj_t *rocket = find_rocket();
+        assert(rocket && rocket->target == marine && (rocket->flags & MF_MISSILE));
+        assert(player->health == health_before); // Travel time, no hitscan damage.
+        assert(rocket->momx || rocket->momy);
+        for (int tic = 0; tic < 35 && (rocket->flags & MF_MISSILE); tic++)
+            P_MobjThinker(rocket);
+        assert(player->health < health_before);
+    }
+    reset();
+    Worthy_UseChampion(1);
+    mobj_t *marine = spawn(MT_POSSESSED, -256, 96);
+    P_SetRocketMarines(1);
+    marine->target = NULL;
+    A_PosAttack(marine);
+    assert(!find_rocket());
+    marine->target = player;
+    demoplayback = true;
+    assert(!P_IsRocketMarine(marine));
+    A_PosAttack(marine);
+    assert(!find_rocket());
+    demoplayback = false;
+    demorecording = true;
+    assert(!P_IsRocketMarine(marine));
+    demorecording = false;
+    netgame = true;
+    assert(!P_IsRocketMarine(marine));
+    netgame = false;
+    mobj_t *shotgunner = spawn(MT_SHOTGUY, -256, 160);
+    assert(!P_IsRocketMarine(shotgunner));
+    A_SPosAttack(shotgunner);
+    assert(!find_rocket());
+    P_SetRocketMarines(0);
+    int health_before = player->health;
+    A_PosAttack(marine);
+    assert(!find_rocket() && player->health < health_before);
+    puts("PASS: rocket marines fire real damaging missiles with either AI; toggle-off restores bullets, other enemies and demos stay classic");
+    for (int worthy = 0; worthy < 2; worthy++) {
+        int damage_without_rockets[100];
+        for (int rockets = 0; rockets < 2; rockets++) {
+            reset();
+            Worthy_UseChampion(worthy);
+            P_SetRocketMarines(rockets);
+            mobj_t *shotgunner = spawn(MT_SHOTGUY, -256, 96);
+            assert(P_CheckSight(shotgunner, player) && P_WorthyCanFire(shotgunner));
+            players[consoleplayer].armorpoints = 0;
+            players[consoleplayer].armortype = 0;
+            // Replay the same random stream with the rocket toggle off/on.
+            M_ClearRandom();
+            int total_damage = 0;
+            for (int shot = 0; shot < 100; shot++) {
+                player->health = players[consoleplayer].health = 10000;
+                A_SPosAttack(shotgunner);
+                int damage = 10000 - player->health;
+                assert(!find_rocket());
+                assert(damage >= 0 && damage <= 45 && damage % 3 == 0);
+                if (!rockets) damage_without_rockets[shot] = damage;
+                else assert(damage == damage_without_rockets[shot]);
+                total_damage += damage;
+            }
+            assert(total_damage > 0);
+        }
+    }
+    puts("PASS: 100 shotgun attacks deal identical pellet damage with rockets off/on for each AI setting; never spawn rockets or exceed 45 damage");
+    puts("All gameplay mod engine scenarios passed.");
+    Test_Mirror();
     return 0;
 }

@@ -2,6 +2,17 @@ Source: https://github.com/ozkl/doomgeneric
 Revision: dcb7a8dbc7a16ce3dda29382ac9aae9d77d21284
 Retrieved: 2026-09-04
 
+Mirror, Mirror (2026-09-07) reflects the world framebuffer through
+`src/r_resolution.c`, before readable UI composition. `g_game.c` reverses
+horizontal player commands, `am_map.c` reflects the automap and pan direction
+while preserving marker text, and `s_sound.c` reverses stereo separation.
+Map data and save coordinates stay in their original format.
+
+The optional Rocket Marines mod (2026-09-07) adds `p_mods.h` and a toggle in
+`p_enemy.c` that replaces pistol-zombie shots with standard rockets. It defaults
+off, bypasses demos and network games, and leaves the save format unchanged.
+Worthy Adversaries treats these marines as projectile enemies when enabled.
+
 The original repository notices are retained. Local changes dated 2026-09-05
 add native 320×200, 640×400, and 1280×800 rendering:
 
@@ -29,8 +40,10 @@ bounded tanh network, plus optional network decisions in `p_worthy.c`. The brows
 embeds a frozen enemy network when the mod is enabled. Parameter defaults preserve the shipped tactics;
 `training/` owns the native arena, player bot, optimizer, and evaluation artifacts.
 
-Browser hybrid combat uses deterministic attack scheduling and hitscan spread
-hooks in `p_enemy.c`, plus bounded projectile interception in `p_worthy.c`.
+Browser hybrid combat uses deterministic attack scheduling in `p_enemy.c`,
+plus bounded projectile interception in `p_worthy.c`. Hitscan attacks retain
+vanilla random spread, pellet counts, and damage; Worthy changes firing decisions
+and positioning without modifying the weapons.
 Neural decisions still control movement and cover. The override is explicitly
 enabled by the browser champion loader; archived offline arena rules stay intact.
 

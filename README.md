@@ -34,7 +34,10 @@ site where they were created; localhost saves are separate from the hosted site.
 ## Playing
 
 - W/S or up/down: move. Left/right arrows: turn. A/D: strafe.
-- Ctrl or F: fire. Space or E: use/open. Shift: run.
+- F or Ctrl: fire. Space or E: use/open. Shift: run.
+  On Mac, use F or left-click to fire when playing fullscreen: Ctrl + arrow keys
+  can switch desktops or open Mission Control. These macOS shortcuts may be
+  handled before the game receives them, so the page cannot reliably block them.
 - Enter: select. Escape: menu. Tab: map. 1–7: weapon.
 - Click the game to capture the mouse. Move horizontally to turn, left-click to
   fire, and right-click to use/open. Vertical aim is automatic, as in classic DOOM.
@@ -52,6 +55,18 @@ site where they were created; localhost saves are separate from the hosted site.
   melt transitions retain their original pixel-art resolution; walls, floors,
   ceilings, and sprites are rasterized at the selected resolution.
 - Changing tabs or focusing another application pauses the game.
+- **Mirror, Mirror** reflects the world left to right: map layout, monsters,
+  items, textures, and the weapon view. Turning, strafing, automap panning, and
+  stereo sound follow the reflection, so controls still feel natural. Menus,
+  HUD text, and automap marker numbers stay readable. Toggle anytime; changes
+  while paused take effect on resume. The preference is remembered and works
+  with all resolutions, both other mods, and existing saves.
+- **Rocket marines** gives the weakest enemies (pistol zombies) rocket launchers.
+  Each attack fires a standard rocket with explosive splash damage. Toggle it
+  anytime; the choice is remembered in this browser and works with **Worthy
+  adversaries**. Existing sprites, health, attack timing, and ammo drops stay the
+  same. Saves remain compatible; loaded enemies use the current toggle setting.
+  Built-in demos retain their original weapons.
 - **Worthy adversaries** is an optional checkbox you can toggle before or during
   play. The choice is remembered in this browser. It uses the second-hour v4 recurrent
   enemy checkpoint, with per-monster memory and learned spacing, cover, and pursuit
@@ -66,8 +81,8 @@ site where they were created; localhost saves are separate from the hosted site.
   the same cover spot. Blocked monsters wait or replan instead of cycling through
   backward steps. Movement still uses ordinary DOOM collision and door rules.
 - Movement and cover use the neural policy; shooting uses a deterministic
-  controller. Pistol and chaingun enemies aim directly at visible players, and
-  shotgunners use a tight fixed spread. Clear shots fire after a fixed cooldown
+  controller for attack decisions. Pistol, shotgun, and chaingun enemies retain
+  their original random spread, pellet counts, and damage. Clear shots fire after a fixed cooldown
   and the normal attack animation. Projectiles intercept observed motion with
   bounded prediction; changing direction can still evade them. Invisibility
   retains ordinary aim errors, and blocked firing lanes still prevent shots.
@@ -140,6 +155,13 @@ Closed doors remain subject to normal monster door use. Cover visibility probes
 use the last observed/heard player position and require a hidden position plus a
 short, walkable path to an exposed position. Neighbor spacing uses bounded
 blockmap searches; the mod does not need a server, AI service, or extra assets.
+
+Mirror, Mirror reflects the completed world render before the UI is composed,
+and the automap before its marker labels. Horizontal movement commands and
+directional sound are reversed to match. This presents a mirrored playable
+world without rewriting the IWAD geometry or save coordinates; switching the
+mod or loading an existing save therefore needs no map conversion. Display
+and control changes are applied together between engine ticks.
 
 Mouse capture uses the browser's [Pointer Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API).
 The save adapter uses Emscripten's [filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html).

@@ -6,6 +6,7 @@
 #include "doomstat.h"
 #include "p_local.h"
 #include "p_worthy.h"
+#include "p_mods.h"
 #include "p_policy_net.h"
 #include "r_state.h"
 #include "s_sound.h"
@@ -61,17 +62,6 @@ static boolean eligible(mobj_t *actor)
 boolean P_WorthyDeterministicFire(mobj_t *actor)
 {
     return deterministic_fire && eligible(actor);
-}
-
-angle_t P_WorthyShotAngle(mobj_t *actor, angle_t aim, angle_t spread, int pellet)
-{
-    if (!deterministic_fire || !eligible(actor)
-        || (actor->target->flags & MF_SHADOW) || !P_CheckSight(actor, actor->target))
-        return aim + spread;
-    // Rifle/chaingun shots go down the sight line; shotgun pellets form a
-    // symmetric two-degree fan with one pellet exactly on target.
-    if (actor->type == MT_SHOTGUY) return aim + (pellet - 1) * (ANG45 / 45);
-    return aim;
 }
 
 static unsigned personality(mobj_t *actor)
@@ -319,7 +309,7 @@ boolean P_WorthyChase(mobj_t *actor)
 
     worthy_policy_t choice = policy;
     if (network.enabled) {
-        boolean hitscan = actor->type == MT_POSSESSED || actor->type == MT_SHOTGUY
+        boolean hitscan = (actor->type == MT_POSSESSED && !P_IsRocketMarine(actor)) || actor->type == MT_SHOTGUY
             || actor->type == MT_CHAINGUY || actor->type == MT_SPIDER;
         fixed_t norm = distance > FRACUNIT ? distance : FRACUNIT;
         fixed_t ux = FixedDiv(dx, norm), uy = FixedDiv(dy, norm);
@@ -380,7 +370,7 @@ boolean P_WorthyChase(mobj_t *actor)
         gy += bounded((int64_t)target->momy * choice.pursuit_lead, -96 * FRACUNIT, 96 * FRACUNIT);
     }
     if (ranged && visible) {
-        boolean hitscan = actor->type == MT_POSSESSED || actor->type == MT_SHOTGUY
+        boolean hitscan = (actor->type == MT_POSSESSED && !P_IsRocketMarine(actor)) || actor->type == MT_SHOTGUY
             || actor->type == MT_CHAINGUY || actor->type == MT_SPIDER;
         int preferred = hitscan ? choice.hitscan_range : choice.range;
         if (actor->type == MT_SHOTGUY) preferred = preferred * 2 / 3;

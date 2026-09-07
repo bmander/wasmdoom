@@ -4,6 +4,7 @@
 #include "m_controls.h"
 #include "r_resolution.h"
 #include "p_worthy_champion.h"
+#include "p_mods.h"
 #include <emscripten.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -63,6 +64,8 @@ void DG_Init(void) {}
 
 EMSCRIPTEN_KEEPALIVE void doom_resolution(int scale) { R_RequestResolution(scale); }
 EMSCRIPTEN_KEEPALIVE void doom_worthy(int enabled) { Worthy_UseChampion(enabled); }
+EMSCRIPTEN_KEEPALIVE void doom_rocket_marines(int enabled) { P_SetRocketMarines(enabled); }
+EMSCRIPTEN_KEEPALIVE void doom_mirror(int enabled) { R_RequestMirror(enabled); }
 
 EM_JS(void, draw_frame, (const void *pixels, int width, int height), {
     if (!Module.frameImage || Module.frameImage.width !== width || Module.frameImage.height !== height) {

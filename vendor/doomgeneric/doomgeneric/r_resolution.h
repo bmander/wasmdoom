@@ -15,6 +15,9 @@ extern byte render_mask[320 * 200];
 
 void R_RequestResolution(int scale);
 void R_ApplyResolution(void);
+void R_RequestMirror(int enabled);
+boolean R_MirrorEnabled(void);
+void R_MirrorRect(byte *pixels, int pitch, int left, int top, int width, int height);
 void R_BeginDisplay(void);
 void R_EndRender(void);
 byte *R_CompositeFrame(void);

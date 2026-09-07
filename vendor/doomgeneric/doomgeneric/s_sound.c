@@ -1,3 +1,4 @@
+// WasmDOOM: Mirror, Mirror stereo direction mapping, 2026-09-07.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -35,6 +36,7 @@
 #include "m_argv.h"
 
 #include "p_local.h"
+#include "r_resolution.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -360,6 +362,7 @@ static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
 
     // stereo separation
     *sep = 128 - (FixedMul(S_STEREO_SWING, finesine[angle]) >> FRACBITS);
+    if (R_MirrorEnabled()) *sep = 256 - *sep;
 
     // volume calculation
     if (approx_dist < S_CLOSE_DIST)
@@ -667,4 +670,3 @@ void S_StopMusic(void)
         mus_playing = NULL;
     }
 }
-

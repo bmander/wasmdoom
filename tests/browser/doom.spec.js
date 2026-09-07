@@ -355,3 +355,111 @@ test('worthy adversaries toggles live, remembers its setting, and keeps saves co
   await expect(page.locator('#status')).toHaveText('RUNNING');
   expect(errors).toEqual([]);
 });
+
+test('rocket marines toggles independently, persists, and loads saves with either setting', async ({page}) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  const rockets = page.getByRole('checkbox', {name: 'Rocket marines', exact: true});
+  const worthy = page.getByRole('checkbox', {name: 'Worthy adversaries', exact: true});
+  await expect(rockets).not.toBeChecked();
+  await rockets.check();
+  await expect(page.locator('#rocket-marines-state')).toHaveText('ROCKETS ISSUED');
+  await expect(worthy).not.toBeChecked();
+  await start(page);
+  await enterLevel(page);
+  await worthy.check();
+  await saveSlot(page, 'ROCKETS');
+  await page.locator('#pause').click();
+  await rockets.uncheck();
+  await expect(page.locator('#rocket-marines-state')).toHaveText('STANDARD SIDEARMS');
+  await expect(worthy).toBeChecked();
+  await page.locator('#play').click();
+  await page.locator('#load').click();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(1500);
+  await expect(page.locator('#status')).toHaveText('RUNNING');
+  await rockets.check();
+  await page.screenshot({path: 'test-results/rocket-marines.png', fullPage: true});
+  await page.reload();
+  await expect(rockets).toBeChecked();
+  await expect(page.locator('#rocket-marines-state')).toHaveText('ROCKETS ISSUED');
+  await start(page);
+  await expect(page.locator('#save-state')).toHaveText('1 saved slot restored');
+  await page.locator('#load').click();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(1500);
+  await expect(page.locator('#status')).toHaveText('RUNNING');
+  await rockets.uncheck();
+  await page.reload();
+  await expect(rockets).not.toBeChecked();
+  expect(errors).toEqual([]);
+});
+
+test('Mirror, Mirror reflects the world live, preserves readable UI, and remembers across save loading', async ({page}) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  const mirror = page.getByRole('checkbox', {name: 'Mirror, Mirror', exact: true});
+  await expect(mirror).not.toBeChecked();
+  await page.getByRole('checkbox', {name: 'Worthy adversaries', exact: true}).check();
+  await page.getByRole('checkbox', {name: 'Rocket marines', exact: true}).check();
+  await start(page);
+  await enterLevel(page);
+  await saveSlot(page, 'MIRROR');
+  // The in-game menu freezes simulation but keeps rendering. Compare the
+  // unobscured edges of the same scene exactly, without animation differences.
+  await page.locator('canvas').focus();
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(250);
+  await page.locator('canvas').evaluate(canvas => {
+    window.mirrorReference = new Uint32Array(canvas.getContext('2d')
+      .getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+  });
+  const mismatches = flipped => page.locator('canvas').evaluate((canvas, flipped) => {
+    const now = new Uint32Array(canvas.getContext('2d')
+      .getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+    const scale = canvas.width / 320;
+    let mismatches = 0;
+    for (let y = 20 * scale; y < 52 * scale; y++) {
+      for (let x = 8 * scale; x < 48 * scale; x++) {
+        const sourceX = flipped ? canvas.width - 1 - x : x;
+        mismatches += now[y * canvas.width + x] !== window.mirrorReference[y * canvas.width + sourceX];
+      }
+    }
+    return mismatches;
+  }, flipped);
+  expect(await mismatches(true)).toBeGreaterThan(100);
+  await mirror.check();
+  await expect(page.locator('#mirror-state')).toHaveText('THROUGH THE LOOKING GLASS');
+  await expect.poll(() => mismatches(true)).toBe(0);
+  await page.screenshot({path: 'test-results/mirror-mirror.png', fullPage: true});
+  await mirror.uncheck();
+  await expect.poll(() => mismatches(false)).toBe(0);
+  await mirror.check();
+  await page.locator('canvas').focus();
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Tab');
+  await page.waitForTimeout(200);
+  await page.screenshot({path: 'test-results/mirror-automap.png', fullPage: true});
+  await page.locator('#pause').click();
+  const frozen = await frame(page);
+  await mirror.uncheck();
+  expect(await frame(page)).toBe(frozen);
+  await page.locator('#play').click();
+  await expect(page.locator('#status')).toHaveText('RUNNING');
+  await mirror.check();
+  await page.reload();
+  await expect(mirror).toBeChecked();
+  await start(page);
+  await expect(page.locator('#save-state')).toHaveText('1 saved slot restored');
+  await page.locator('#load').click();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(1500);
+  await expect(page.locator('#status')).toHaveText('RUNNING');
+  await expect(page.locator('#mirror-state')).toHaveText('THROUGH THE LOOKING GLASS');
+  await mirror.uncheck();
+  await page.reload();
+  await expect(mirror).not.toBeChecked();
+  expect(errors).toEqual([]);
+});

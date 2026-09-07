@@ -37,7 +37,7 @@ command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/r_r
            '-sMODULARIZE=1', '-sEXPORT_ES6=1', '-sEXPORT_NAME=createDoom',
            '-sENVIRONMENT=web', '-sFORCE_FILESYSTEM=1', '-sEXIT_RUNTIME=1',
            '-sEXPORTED_RUNTIME_METHODS=["FS","callMain"]',
-           '-sEXPORTED_FUNCTIONS=["_main","_doom_key","_doom_pause","_doom_mute","_doom_mouse","_doom_release_mouse","_doom_text_input","_doom_resolution","_doom_worthy"]',
+           '-sEXPORTED_FUNCTIONS=["_main","_doom_key","_doom_pause","_doom_mute","_doom_mouse","_doom_release_mouse","_doom_text_input","_doom_resolution","_doom_worthy","_doom_rocket_marines","_doom_mirror"]',
            '-lm', '-o', str(ROOT / 'public/engine/doom.js')]
 if '--source-only' not in sys.argv:
     subprocess.run(command, cwd=ROOT, env=env, check=True)
