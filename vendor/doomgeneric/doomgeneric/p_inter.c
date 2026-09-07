@@ -1,3 +1,4 @@
+// WasmDOOM: Rocket Marines drop rocket-launcher pickups, 2026-09-07.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -34,6 +35,7 @@
 #include "am_map.h"
 
 #include "p_local.h"
+#include "p_mods.h"
 
 #include "s_sound.h"
 
@@ -741,9 +743,13 @@ P_KillMobj
     switch (target->type)
     {
       case MT_WOLFSS:
-      case MT_POSSESSED:
 	item = MT_CLIP;
 	break;
+
+      case MT_POSSESSED:
+        // Use the standard launcher pickup, including its normal ammo grant.
+        item = P_IsRocketMarine(target) ? MT_MISC27 : MT_CLIP;
+        break;
 	
       case MT_SHOTGUY:
 	item = MT_SHOTGUN;
@@ -919,4 +925,3 @@ P_DamageMobj
     }
 			
 }
-

@@ -73,6 +73,19 @@ static mobj_t *find_rocket(void)
     return NULL;
 }
 
+static mobj_t *find_drop(void)
+{
+    mobj_t *drop = NULL;
+    for (thinker_t *th = thinkercap.next; th != &thinkercap; th = th->next) {
+        if (th->function.acp1 == (actionf_p1)P_MobjThinker
+            && (((mobj_t *)th)->flags & MF_DROPPED)) {
+            assert(!drop); // One weapon instead of a weapon plus the old clip.
+            drop = (mobj_t *)th;
+        }
+    }
+    return drop;
+}
+
 int main(int argc, char **argv)
 {
     doomgeneric_Create(argc, argv);
@@ -457,6 +470,53 @@ int main(int argc, char **argv)
         }
     }
     puts("PASS: 100 shotgun attacks deal identical pellet damage with rockets off/on for each AI setting; never spawn rockets or exceed 45 damage");
+    for (int worthy = 0; worthy < 2; worthy++) {
+        for (int gib = 0; gib < 2; gib++) {
+            reset();
+            Worthy_UseChampion(worthy);
+            P_SetRocketMarines(1);
+            mobj_t *marine = spawn(MT_POSSESSED, 80, 0);
+            P_DamageMobj(marine, player, player, gib ? 1000 : marine->health);
+            assert(marine->health <= 0);
+            mobj_t *drop = find_drop();
+            assert(drop && drop->type == MT_MISC27 && drop->sprite == SPR_LAUN);
+            assert(drop->x == marine->x && drop->y == marine->y);
+            assert(!players[consoleplayer].weaponowned[wp_missile]);
+            assert(players[consoleplayer].ammo[am_misl] == 0);
+            // A dropped launcher remains usable even if the mod is disabled.
+            P_SetRocketMarines(0);
+            P_TouchSpecialThing(drop, player);
+            assert(players[consoleplayer].weaponowned[wp_missile]);
+            assert(players[consoleplayer].pendingweapon == wp_missile);
+            assert(players[consoleplayer].ammo[am_misl] == 2);
+            P_RunThinkers();
+            assert(!find_drop());
+            // Environmental deaths also drop loot, usable as repeat ammo.
+            P_SetRocketMarines(1);
+            marine = spawn(MT_POSSESSED, 80, 0);
+            P_DamageMobj(marine, NULL, NULL, 1000);
+            drop = find_drop();
+            assert(drop && drop->type == MT_MISC27);
+            P_TouchSpecialThing(drop, player);
+            assert(players[consoleplayer].ammo[am_misl] == 4);
+        }
+    }
+    mobjtype_t drop_enemies[] = {MT_POSSESSED, MT_WOLFSS, MT_SHOTGUY, MT_CHAINGUY};
+    mobjtype_t classic_drops[] = {MT_CLIP, MT_CLIP, MT_SHOTGUN, MT_CHAINGUN};
+    for (int kind = 0; kind < 4; kind++) {
+        for (int rockets = 0; rockets < 2; rockets++) {
+            reset();
+            P_SetRocketMarines(rockets);
+            // Demo playback bypasses the rocket mod for the pistol zombie.
+            demoplayback = kind == 0 && rockets;
+            actor = spawn(drop_enemies[kind], 80, 0);
+            P_DamageMobj(actor, player, player, 1000);
+            mobj_t *drop = find_drop();
+            assert(drop && drop->type == classic_drops[kind]);
+            demoplayback = false;
+        }
+    }
+    puts("PASS: rocket marines drop usable launchers and ammo on normal, gib and environmental deaths; classic/demo and other enemy drops are preserved");
     puts("All gameplay mod engine scenarios passed.");
     Test_Mirror();
     return 0;

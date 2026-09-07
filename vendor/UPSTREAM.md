@@ -12,6 +12,9 @@ The optional Rocket Marines mod (2026-09-07) adds `p_mods.h` and a toggle in
 `p_enemy.c` that replaces pistol-zombie shots with standard rockets. It defaults
 off, bypasses demos and network games, and leaves the save format unchanged.
 Worthy Adversaries treats these marines as projectile enemies when enabled.
+`p_inter.c` gives killed rocket marines a standard rocket-launcher drop,
+including normal pickup ammo, in place of their usual clip. Other enemy drops
+and classic/demo behavior remain unchanged.
 
 The original repository notices are retained. Local changes dated 2026-09-05
 add native 320×200, 640×400, and 1280×800 rendering:

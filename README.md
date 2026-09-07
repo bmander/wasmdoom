@@ -64,8 +64,10 @@ site where they were created; localhost saves are separate from the hosted site.
 - **Rocket marines** gives the weakest enemies (pistol zombies) rocket launchers.
   Each attack fires a standard rocket with explosive splash damage. Toggle it
   anytime; the choice is remembered in this browser and works with **Worthy
-  adversaries**. Existing sprites, health, attack timing, and ammo drops stay the
-  same. Saves remain compatible; loaded enemies use the current toggle setting.
+  adversaries**. Killed rocket marines drop a rocket launcher with its normal
+  pickup ammo (two rockets on normal difficulty), replacing their ammo clip.
+  Existing sprites, health, and attack timing stay the same. Saves remain
+  compatible; loaded enemies use the current toggle setting.
   Built-in demos retain their original weapons.
 - **Worthy adversaries** is an optional checkbox you can toggle before or during
   play. The choice is remembered in this browser. It uses the second-hour v4 recurrent
