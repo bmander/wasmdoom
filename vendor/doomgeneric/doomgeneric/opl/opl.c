@@ -23,16 +23,6 @@
 
 #include "SDL.h"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-
-// Yields of one millisecond each that OPL_Delay will spend waiting for the
-// mixer callback before giving up. A browser audio device that never starts
-// then leaves the game silent instead of hanging the page.
-
-#define MAX_DELAY_YIELDS 1000
-#endif
-
 #include "opl.h"
 #include "opl_internal.h"
 
@@ -47,7 +37,11 @@ extern opl_driver_t opl_openbsd_driver;
 #ifdef _WIN32
 extern opl_driver_t opl_win32_driver;
 #endif
+#ifdef __EMSCRIPTEN__
+extern opl_driver_t opl_worklet_driver;
+#else
 extern opl_driver_t opl_sdl_driver;
+#endif
 
 static opl_driver_t *drivers[] =
 {
@@ -60,7 +54,12 @@ static opl_driver_t *drivers[] =
 #ifdef _WIN32
     &opl_win32_driver,
 #endif
+#ifdef __EMSCRIPTEN__
+    // The browser synthesises on the audio thread; see src/opl_worklet.c.
+    &opl_worklet_driver,
+#else
     &opl_sdl_driver,
+#endif
     NULL
 };
 
@@ -490,6 +489,12 @@ void OPL_Delay(uint64_t us)
         return;
     }
 
+    if (driver->delay_func != NULL)
+    {
+        driver->delay_func(us);
+        return;
+    }
+
     // Create a callback that will signal this thread after the
     // specified time.
 
@@ -501,33 +506,6 @@ void OPL_Delay(uint64_t us)
 
     // Wait until the callback is invoked.
 
-#ifdef __EMSCRIPTEN__
-
-    // The mixer callback that advances OPL time runs on this same thread, so
-    // blocking on the condition variable would deadlock. Yield to the browser
-    // and let the callback run.
-
-    {
-        int yields;
-
-        for (yields = 0; !delay_data.finished; ++yields)
-        {
-            if (yields >= MAX_DELAY_YIELDS)
-            {
-                // Nothing is advancing time. Drop the callback before its
-                // stack-allocated data goes out of scope; OPL_Delay is only
-                // used during detection, so no other callback is pending.
-
-                OPL_ClearCallbacks();
-                break;
-            }
-
-            emscripten_sleep(1);
-        }
-    }
-
-#else
-
     SDL_LockMutex(delay_data.mutex);
 
     while (!delay_data.finished)
@@ -536,8 +514,6 @@ void OPL_Delay(uint64_t us)
     }
 
     SDL_UnlockMutex(delay_data.mutex);
-
-#endif
 
     // Clean up.
 

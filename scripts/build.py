@@ -24,16 +24,16 @@ makefile = (ENGINE / 'Makefile.emscripten').read_text()
 objects = re.search(r'^SRC_DOOM = (.+)$', makefile, re.M).group(1).split()
 sources = [str(ENGINE / obj.replace('.o', '.c')) for obj in objects
            if obj != 'doomgeneric_emscripten.o']
-# OPL music: the Nuked OPL3 emulator plus the GENMIDI-driven player, which are
-# not in the upstream doomgeneric source list.
+# OPL music: the GENMIDI-driven player and OPL library from Chocolate Doom,
+# which are not in the upstream doomgeneric source list. The emulator itself
+# (opl3.c) is compiled separately below for the AudioWorklet.
 sources += [str(ENGINE / name) for name in
-            ['i_oplmusic.c', 'midifile.c',
-             'opl/opl.c', 'opl/opl_queue.c', 'opl/opl_sdl.c', 'opl/opl3.c']]
+            ['i_oplmusic.c', 'midifile.c', 'opl/opl.c', 'opl/opl_queue.c']]
 env = os.environ.copy()
 env.setdefault('EM_CACHE', str(ROOT / '.cache/emscripten'))
 env.setdefault('EM_PORTS', str(ROOT / '.cache/ports'))
 (ROOT / 'public/engine').mkdir(parents=True, exist_ok=True)
-command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/r_resolution.c'), str(ROOT / 'src/p_worthy.c'), str(ROOT / 'src/p_worthy_nav.c'), str(ROOT / 'src/p_policy_net.c'), str(ROOT / 'src/p_policy_context.c'),
+command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/opl_worklet.c'), str(ROOT / 'src/r_resolution.c'), str(ROOT / 'src/p_worthy.c'), str(ROOT / 'src/p_worthy_nav.c'), str(ROOT / 'src/p_policy_net.c'), str(ROOT / 'src/p_policy_context.c'),
            '-I' + str(ENGINE), '-I' + str(ENGINE / 'opl'), '-O2', '-DFEATURE_SOUND',
            '-DDOOMGENERIC_RESX=1280', '-DDOOMGENERIC_RESY=800',
            '-Wno-incompatible-function-pointer-types',
@@ -44,9 +44,18 @@ command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/r_r
            '-sEXPORTED_RUNTIME_METHODS=["FS","callMain"]',
            '-sEXPORTED_FUNCTIONS=["_main","_doom_key","_doom_pause","_doom_mute","_doom_mouse","_doom_release_mouse","_doom_text_input","_doom_resolution","_doom_worthy","_doom_rocket_marines","_doom_mirror"]',
            '-lm', '-o', str(ROOT / 'public/engine/doom.js')]
+# The OPL3 emulator runs on the audio thread as a standalone module with no
+# imports, instantiated by src/opl_worklet.js inside an AudioWorklet.
+chip = [emcc, str(ENGINE / 'opl/opl3.c'), str(ROOT / 'src/opl_worklet_chip.c'),
+        '-I' + str(ENGINE / 'opl'), '-O3', '--no-entry', '-sSTANDALONE_WASM',
+        '-sEXPORTED_FUNCTIONS=["_opl_reset","_opl_write","_opl_render"]',
+        '-sINITIAL_MEMORY=131072', '-sSTACK_SIZE=16384',
+        '-o', str(ROOT / 'public/engine/opl3.wasm')]
 if '--source-only' not in sys.argv:
     subprocess.run(command, cwd=ROOT, env=env, check=True)
-    print('Built public/engine/doom.js and doom.wasm')
+    subprocess.run(chip, cwd=ROOT, env=env, check=True)
+    shutil.copyfile(ROOT / 'src/opl_worklet.js', ROOT / 'public/engine/opl-worklet.js')
+    print('Built public/engine/doom.js, doom.wasm, opl3.wasm, and opl-worklet.js')
 
 licenses = ROOT / 'public/licenses'
 licenses.mkdir(exist_ok=True)

@@ -66,9 +66,12 @@ after the WAD is loaded, since its instruments come from the GENMIDI lump.
 `i_swap.h`'s little-endian WAD macros are supplemented in `midifile.c` by SDL's
 byte swapping for big-endian MIDI fields.
 
-Two changes are specific to the browser. `opl/opl.c` yields to the event loop
-during chip detection instead of blocking on a condition variable: the mixer
-callback that advances OPL time runs on the same thread, and a suspended audio
-device would otherwise hang the page rather than merely leaving it silent.
-`i_oplmusic.c` treats a missing GENMIDI lump as "no music" instead of a fatal
-lump lookup, because the player supplies the WAD.
+Two changes are specific to the browser. `opl/opl.c` registers the project's
+AudioWorklet driver (`src/opl_worklet.c`) in place of the SDL driver under
+Emscripten, and `opl_internal.h` gains an optional `delay_func` driver hook so
+that a driver with a virtual clock can satisfy chip detection's delay without
+waiting on a callback; other drivers leave it NULL and keep the upstream path.
+`opl/opl_sdl.c` is retained unmodified but not compiled for the browser, and
+`opl/opl3.c` is compiled on its own for the audio thread. `i_oplmusic.c` treats
+a missing GENMIDI lump as "no music" instead of a fatal lump lookup, because
+the player supplies the WAD.

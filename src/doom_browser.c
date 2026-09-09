@@ -5,6 +5,7 @@
 #include "r_resolution.h"
 #include "p_worthy_champion.h"
 #include "p_mods.h"
+#include "opl_worklet.h"
 #include <emscripten.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -46,9 +47,9 @@ EMSCRIPTEN_KEEPALIVE void doom_key(int key, int pressed)
     write_index = next;
 }
 
-// OPL music reaches the device through Mix_HookMusic, which Mix_MasterVolume
-// does not scale. Silencing the finished mix covers effects and music alike
-// without disturbing the engine's own music state.
+// Sound effects come through SDL_mixer; music through the OPL worklet, which
+// has its own output. Silencing the finished mix rather than the channels
+// keeps this independent of the engine's own volume and music state.
 static void silence(void *unused, Uint8 *stream, int len)
 {
     (void)unused;
@@ -58,6 +59,7 @@ static void silence(void *unused, Uint8 *stream, int len)
 static void apply_silence(void)
 {
     Mix_SetPostMix((is_paused || is_muted) ? silence : NULL, NULL);
+    OPL_Worklet_SetMuted(is_paused || is_muted);
 }
 
 EMSCRIPTEN_KEEPALIVE void doom_pause(int value)
@@ -65,6 +67,7 @@ EMSCRIPTEN_KEEPALIVE void doom_pause(int value)
     if (value && !is_paused) paused_at = emscripten_get_now();
     if (!value && is_paused) paused_time += emscripten_get_now() - paused_at;
     is_paused = value;
+    OPL_Worklet_SetBrowserPaused(is_paused);
     apply_silence();
 }
 
@@ -132,6 +135,8 @@ static void tick(void) {
 }
 int main(int argc, char **argv)
 {
+    // Overlaps the worklet download with WAD loading and engine startup.
+    OPL_Worklet_Preload();
     doomgeneric_Create(argc, argv);
     mousebfire = 0;
     mousebuse = 1;

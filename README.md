@@ -100,8 +100,9 @@ site where they were created; localhost saves are separate from the hosted site.
 Sound effects and music are supported. Music is synthesised with an emulated
 OPL2 chip, the way DOOM sounded on an Adlib or Sound Blaster: the instruments
 come from the GENMIDI lump inside your own WAD, so nothing extra is downloaded.
-A WAD without that lump plays silently. The Sound button and any pause silence
-music and effects together. Keyboard required; touch controls and multiplayer
+The emulator runs on the browser's audio thread, so music costs the game no
+frame time. A WAD without that lump plays silently. The Sound button and any
+pause silence music and effects together. Keyboard required; touch controls and multiplayer
 are not implemented. PWAD mods and modern source-port extensions are unsupported.
 
 Save slots persist in IndexedDB after the page or browser closes. Wait for
@@ -128,16 +129,27 @@ python3 scripts/build.py
 The script finds `emcc` on PATH or under `~/emsdk`; override with `EMCC`.
 The first build downloads Emscripten's SDL2 and SDL2_mixer ports. Build caches
 stay in `.cache/`. This build was compiled with Emscripten 6.0.7, SDL 2.32.10,
-and SDL_mixer 2.8.0. Outputs: `public/engine/doom.js` and `doom.wasm`.
+and SDL_mixer 2.8.0. Outputs: `public/engine/doom.js`, `doom.wasm`, `opl3.wasm`,
+and `opl-worklet.js`.
 The build also refreshes the downloadable corresponding-source archive.
 
 `src/doom_browser.c` supplies the canvas framebuffer, key queue, mouse input, clock, and
-browser event loop. SDL2_mixer provides sound effects and carries the OPL music
-output through `Mix_HookMusic`; the adapter silences the finished mix for mute
-and pause, which `Mix_MasterVolume` alone would not reach. Asyncify lets the
-original engine yield to the browser during waits instead of blocking page
-interaction, including the millisecond delay in the OPL chip detection sequence,
-which would otherwise wait forever for a mixer callback on its own thread.
+browser event loop. SDL2_mixer provides sound effects; the adapter silences its
+finished mix for mute and pause. Asyncify lets the original engine yield to the
+browser during waits instead of blocking page interaction.
+
+Music takes a different route. Emscripten delivers SDL's audio callback on the
+main thread, so running the OPL3 emulator there, as Chocolate Doom's SDL driver
+does, cost about 1.2 ms of every 23 ms audio buffer and dropped frames whenever
+that landed in a busy one. Instead `src/opl_worklet.c` is an OPL driver that
+keeps a virtual music clock 150 ms ahead of the audio device, runs the engine's
+music callbacks from a 20 ms interval timer as that clock advances, and stamps
+each register write with the audio frame at which it applies. `src/opl_worklet.js`
+receives those writes inside an AudioWorklet and drives `opl3.wasm`, the Nuked
+OPL3 emulator compiled on its own from `src/opl_worklet_chip.c` with no imports.
+The interval timer, not the game loop, drives scheduling, so music keeps time
+through blocking waits such as the screen melt. Chip detection's delay simply
+advances the virtual clock.
 `public/app.js` mounts the selected IWAD into Emscripten's filesystem and starts
 the engine. `public/saves.js` restores saves before startup and snapshots each
 completed slot after the engine renames its temporary save file. IndexedDB
