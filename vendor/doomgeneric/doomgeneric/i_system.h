@@ -1,3 +1,4 @@
+// WasmDOOM: OPL music support, 2026-09-08. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -19,6 +20,8 @@
 
 #ifndef __I_SYSTEM__
 #define __I_SYSTEM__
+
+#include <stddef.h>
 
 #include "d_ticcmd.h"
 #include "d_event.h"
@@ -53,6 +56,10 @@ ticcmd_t* I_BaseTiccmd (void);
 void I_Quit (void);
 
 void I_Error (char *error, ...);
+
+// realloc() that aborts through I_Error instead of returning NULL.
+
+void *I_Realloc(void *ptr, size_t size);
 
 void I_Tactile (int on, int off, int total);
 

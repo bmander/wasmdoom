@@ -1,3 +1,4 @@
+// WasmDOOM: OPL music support, 2026-09-08. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -79,6 +80,17 @@ static sound_module_t *sound_modules[] =
     NULL,
 };
 
+// Compiled-in music modules:
+
+static music_module_t *music_modules[] =
+{
+    #ifdef FEATURE_SOUND
+    &DG_music_module,
+    &music_opl_module,
+    #endif
+    NULL,
+};
+
 // Check if a sound device is in the given list of devices
 
 static boolean SndDeviceInList(snddevice_t device, snddevice_t *list,
@@ -130,9 +142,23 @@ static void InitSfxModule(boolean use_sfx_prefix)
 
 static void InitMusicModule(void)
 {
-#ifdef FEATURE_SOUND
-    music_module = &DG_music_module;
-#endif /* FEATURE_SOUND */
+    int i;
+
+    music_module = NULL;
+
+    for (i=0; music_modules[i] != NULL; ++i)
+    {
+        // Is the music device in the list of devices supported
+        // by this module?
+
+        if (SndDeviceInList(snd_musicdevice,
+                            music_modules[i]->sound_devices,
+                            music_modules[i]->num_sound_devices))
+        {
+            music_module = music_modules[i];
+            return;
+        }
+    }
 }
 
 //
@@ -308,9 +334,14 @@ void I_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
 
 void I_InitMusic(void)
 {
-    if(music_module != NULL)
+    // The module is selected in InitMusicModule, but only starts here, once
+    // the WAD is loaded: the OPL player reads its GENMIDI instrument bank
+    // from the IWAD. A module that cannot start leaves the game silent
+    // rather than failing.
+
+    if (music_module != NULL && !music_module->Init())
     {
-        music_module->Init();
+        music_module = NULL;
     }
 }
 

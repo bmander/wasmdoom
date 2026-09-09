@@ -1,3 +1,4 @@
+// WasmDOOM: OPL music support, 2026-09-08. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -51,6 +52,14 @@
 #else
 #define PACKEDATTR
 #endif
+
+#ifdef __WATCOMC__
+#define PACKEDPREFIX _Packed
+#else
+#define PACKEDPREFIX
+#endif
+
+#define PACKED_STRUCT(...) PACKEDPREFIX struct __VA_ARGS__ PACKEDATTR
 
 // C99 integer types; with gcc we just use this.  Other compilers 
 // should add conditional statements that define the C99 types.

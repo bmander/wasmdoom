@@ -54,3 +54,21 @@ Version 4 experiments add optional recurrent inference and structured context in
 `p_policy_net.c` and `p_policy_context.c`. Per-actor neural memory in `p_mobj.h`
 is transient and cleared by the existing `p_saveg.c` reset; the save format is
 unchanged. Legacy networks retain their previous shape and behavior.
+
+OPL music (2026-09-08) restores the game's own soundtrack. `opl/`,
+`i_oplmusic.c`, `midifile.c`, and `midifile.h` come from Chocolate Doom 3.0.1
+(GPL-2.0-or-later, original notices retained); doomgeneric had dropped them.
+`i_sound.c` selects a music module by `snd_musicdevice` as Chocolate Doom does,
+so the default Sound Blaster setting reaches the OPL player, and starts it only
+after the WAD is loaded, since its instruments come from the GENMIDI lump.
+`s_sound.c` picks the DMX driver version to emulate from the game version.
+`doomtype.h` regains `PACKED_STRUCT`, `i_system.c` regains `I_Realloc`, and
+`i_swap.h`'s little-endian WAD macros are supplemented in `midifile.c` by SDL's
+byte swapping for big-endian MIDI fields.
+
+Two changes are specific to the browser. `opl/opl.c` yields to the event loop
+during chip detection instead of blocking on a condition variable: the mixer
+callback that advances OPL time runs on the same thread, and a suspended audio
+device would otherwise hang the page rather than merely leaving it silent.
+`i_oplmusic.c` treats a missing GENMIDI lump as "no music" instead of a fatal
+lump lookup, because the player supplies the WAD.

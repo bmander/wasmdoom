@@ -1,3 +1,4 @@
+// WasmDOOM: OPL music support, 2026-09-08. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -355,6 +356,20 @@ static int ZenityErrorBox(char *message)
 //
 
 static boolean already_quitting = false;
+
+void *I_Realloc(void *ptr, size_t size)
+{
+    void *new_ptr;
+
+    new_ptr = realloc(ptr, size);
+
+    if (size != 0 && new_ptr == NULL)
+    {
+        I_Error ("I_Realloc: failed on reallocation of %zu bytes", size);
+    }
+
+    return new_ptr;
+}
 
 void I_Error (char *error, ...)
 {

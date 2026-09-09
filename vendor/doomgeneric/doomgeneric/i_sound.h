@@ -1,3 +1,4 @@
+// WasmDOOM: OPL music support, 2026-09-08. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -247,6 +248,16 @@ extern music_module_t music_opl_module;
 // For OPL module:
 
 extern int opl_io_port;
+extern char *snd_dmxoption;
+
+// DMX version to emulate for OPL emulation:
+typedef enum {
+    opl_doom1_1_666,    // Doom 1 v1.666
+    opl_doom2_1_666,    // Doom 2 v1.666, Hexen, Heretic
+    opl_doom_1_9        // Doom v1.9, Strife
+} opl_driver_ver_t;
+
+void I_SetOPLDriverVer(opl_driver_ver_t ver);
 
 // For native music module:
 

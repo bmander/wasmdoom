@@ -1,4 +1,5 @@
-// WasmDOOM: Mirror, Mirror stereo direction mapping, 2026-09-07.
+// WasmDOOM: Mirror, Mirror stereo direction mapping, 2026-09-07;
+// OPL music support, 2026-09-08. GPL-2.0-or-later.
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -116,6 +117,30 @@ int snd_channels = 8;
 void S_Init(int sfxVolume, int musicVolume)
 {  
     int i;
+
+#ifdef FEATURE_SOUND
+
+    // The OPL player emulates the DMX driver that shipped with the game.
+    // Builds without the sound modules, such as the headless training arena,
+    // have no OPL player to configure.
+
+    if (gameversion == exe_doom_1_666)
+    {
+        if (logical_gamemission == doom)
+        {
+            I_SetOPLDriverVer(opl_doom1_1_666);
+        }
+        else
+        {
+            I_SetOPLDriverVer(opl_doom2_1_666);
+        }
+    }
+    else
+    {
+        I_SetOPLDriverVer(opl_doom_1_9);
+    }
+
+#endif
 
     I_PrecacheSounds(S_sfx, NUMSFX);
 

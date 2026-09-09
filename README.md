@@ -97,8 +97,11 @@ site where they were created; localhost saves are separate from the hosted site.
 - Load your own DOOM or DOOM II IWAD before starting. Files stay in browser
   memory and are never uploaded. Reload to switch games.
 
-Sound effects are supported. MIDI music is disabled because this build does not
-bundle an instrument bank. Keyboard required; touch controls and multiplayer
+Sound effects and music are supported. Music is synthesised with an emulated
+OPL2 chip, the way DOOM sounded on an Adlib or Sound Blaster: the instruments
+come from the GENMIDI lump inside your own WAD, so nothing extra is downloaded.
+A WAD without that lump plays silently. The Sound button and any pause silence
+music and effects together. Keyboard required; touch controls and multiplayer
 are not implemented. PWAD mods and modern source-port extensions are unsupported.
 
 Save slots persist in IndexedDB after the page or browser closes. Wait for
@@ -129,8 +132,12 @@ and SDL_mixer 2.8.0. Outputs: `public/engine/doom.js` and `doom.wasm`.
 The build also refreshes the downloadable corresponding-source archive.
 
 `src/doom_browser.c` supplies the canvas framebuffer, key queue, mouse input, clock, and
-browser event loop. SDL2_mixer provides sound effects. Asyncify lets the original
-engine yield to the browser during waits instead of blocking page interaction.
+browser event loop. SDL2_mixer provides sound effects and carries the OPL music
+output through `Mix_HookMusic`; the adapter silences the finished mix for mute
+and pause, which `Mix_MasterVolume` alone would not reach. Asyncify lets the
+original engine yield to the browser during waits instead of blocking page
+interaction, including the millisecond delay in the OPL chip detection sequence,
+which would otherwise wait forever for a mixer callback on its own thread.
 `public/app.js` mounts the selected IWAD into Emscripten's filesystem and starts
 the engine. `public/saves.js` restores saves before startup and snapshots each
 completed slot after the engine renames its temporary save file. IndexedDB
@@ -223,6 +230,10 @@ navigation probes never move or damage actors.
   SHA-256: `bb449c7480e9a02a62012d041406e8e43daa51caa0650646d1307d8650b8f837`.
   This is id Software's copyrighted shareware data, **not GPL/open-source game
   assets**. No registered/commercial episodes are included.
+- OPL music player, MIDI parser, and Nuked OPL3 emulator: from
+  [Chocolate Doom](https://github.com/chocolate-doom/chocolate-doom) 3.0.1,
+  included in `vendor/doomgeneric/doomgeneric/opl/`, `i_oplmusic.c`, and
+  `midifile.c`. GPL-2.0-or-later; original notices retained.
 - SDL2 and SDL2_mixer: zlib licenses, linked by Emscripten. Emscripten:
   MIT and University of Illinois/NCSA licenses. Their notices are included in
   `public/licenses/`.

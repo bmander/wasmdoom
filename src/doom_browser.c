@@ -46,18 +46,32 @@ EMSCRIPTEN_KEEPALIVE void doom_key(int key, int pressed)
     write_index = next;
 }
 
+// OPL music reaches the device through Mix_HookMusic, which Mix_MasterVolume
+// does not scale. Silencing the finished mix covers effects and music alike
+// without disturbing the engine's own music state.
+static void silence(void *unused, Uint8 *stream, int len)
+{
+    (void)unused;
+    SDL_memset(stream, 0, len);
+}
+
+static void apply_silence(void)
+{
+    Mix_SetPostMix((is_paused || is_muted) ? silence : NULL, NULL);
+}
+
 EMSCRIPTEN_KEEPALIVE void doom_pause(int value)
 {
     if (value && !is_paused) paused_at = emscripten_get_now();
     if (!value && is_paused) paused_time += emscripten_get_now() - paused_at;
     is_paused = value;
-    Mix_MasterVolume((is_paused || is_muted) ? 0 : MIX_MAX_VOLUME);
+    apply_silence();
 }
 
 EMSCRIPTEN_KEEPALIVE void doom_mute(int value)
 {
     is_muted = value;
-    Mix_MasterVolume((is_paused || is_muted) ? 0 : MIX_MAX_VOLUME);
+    apply_silence();
 }
 
 void DG_Init(void) {}

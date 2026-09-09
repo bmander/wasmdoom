@@ -156,7 +156,7 @@ $('play').addEventListener('click', async () => {
       $('save-state').textContent = message;
       $('retry-save').hidden = !retry;
     });
-    engine.callMain(['-iwad', '/game.wad', '-nomusic']);
+    engine.callMain(['-iwad', '/game.wad']);
   } catch (cause) { fail(`Could not load DOOM. ${cause.message || cause}`); }
 });
 

@@ -24,12 +24,17 @@ makefile = (ENGINE / 'Makefile.emscripten').read_text()
 objects = re.search(r'^SRC_DOOM = (.+)$', makefile, re.M).group(1).split()
 sources = [str(ENGINE / obj.replace('.o', '.c')) for obj in objects
            if obj != 'doomgeneric_emscripten.o']
+# OPL music: the Nuked OPL3 emulator plus the GENMIDI-driven player, which are
+# not in the upstream doomgeneric source list.
+sources += [str(ENGINE / name) for name in
+            ['i_oplmusic.c', 'midifile.c',
+             'opl/opl.c', 'opl/opl_queue.c', 'opl/opl_sdl.c', 'opl/opl3.c']]
 env = os.environ.copy()
 env.setdefault('EM_CACHE', str(ROOT / '.cache/emscripten'))
 env.setdefault('EM_PORTS', str(ROOT / '.cache/ports'))
 (ROOT / 'public/engine').mkdir(parents=True, exist_ok=True)
 command = [emcc, *sources, str(ROOT / 'src/doom_browser.c'), str(ROOT / 'src/r_resolution.c'), str(ROOT / 'src/p_worthy.c'), str(ROOT / 'src/p_worthy_nav.c'), str(ROOT / 'src/p_policy_net.c'), str(ROOT / 'src/p_policy_context.c'),
-           '-I' + str(ENGINE), '-O2', '-DFEATURE_SOUND',
+           '-I' + str(ENGINE), '-I' + str(ENGINE / 'opl'), '-O2', '-DFEATURE_SOUND',
            '-DDOOMGENERIC_RESX=1280', '-DDOOMGENERIC_RESY=800',
            '-Wno-incompatible-function-pointer-types',
            '-sUSE_SDL=2', '-sUSE_SDL_MIXER=2', '-sSDL2_MIXER_FORMATS=[]',
