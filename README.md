@@ -17,6 +17,26 @@ To deploy, copy the contents of `public/` to any static web host that serves
 `.wasm` as `application/wasm`.
 Use HTTPS when hosting remotely (localhost works over HTTP).
 
+## Docker self-hosting
+
+The repository includes a [Dockerfile](Dockerfile) and
+[docker-compose.yml](docker-compose.yml) that serve the pre-built site from
+`public/` with Caddy over HTTPS using a self-signed certificate generated on
+first start, valid for 100 years (X.509 certificates require an expiry date, so
+this is effectively never). No build step runs in the container.
+
+```sh
+cd wasmdoom
+echo 'DOOM_HOST=192.168.1.50' > .env   # address or domain you will use to reach the site
+docker compose up -d --build
+```
+
+Then open `https://<server-address>:18749/` and accept the certificate warning.
+The port is an arbitrary high one; change it in `docker-compose.yml` if needed.
+To play a different IWAD instead of the bundled shareware episode, uncomment
+the volume line in `docker-compose.yml` and point it at your WAD file. Saves
+are keyed by each WAD's contents, so a new WAD gets its own save slots.
+
 ## GitHub Pages
 
 The [Pages workflow](.github/workflows/pages.yml) rebuilds the engine with
