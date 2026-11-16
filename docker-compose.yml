@@ -21,13 +21,13 @@ services:
       DOOM_HOST: ${DOOM_HOST:-localhost}
     volumes:
       # Keeps the self-signed certificate across container recreation.
-      wasmdoom-certs:/srv/certs
+      - wasmdoom-certs:/srv/certs
       # Replace the bundled shareware episode with your own IWAD by pointing
       # this at a local file, e.g.:
       # - /home/you/doom.wad:/srv/wasmdoom/assets/doom1.wad
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "--no-check-certificate", "https://127.0.0.1/"]
+      test: ["CMD", "curl", "-fsk", "https://127.0.0.1/"]
       interval: 30s
       timeout: 5s
       retries: 3

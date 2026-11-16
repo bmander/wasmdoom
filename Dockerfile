@@ -22,4 +22,7 @@ ENV DOOM_HOST=localhost
 EXPOSE 443
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["caddy", "run"]
+# Pass the config explicitly: a bare `caddy run` does not load
+# /etc/caddy/Caddyfile (it looks for a Caddyfile in the working
+# directory), which would start Caddy with no sites at all.
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
