@@ -1,0 +1,37 @@
+# Self-host wasmdoom over HTTPS with a self-signed certificate.
+#
+#   docker compose up -d --build
+#
+# Then open https://<server-address>:18749/ and accept the certificate warning.
+# The port is an arbitrary high one to avoid clashing with the other sites on
+# this server; change the left-hand side of the port mapping if you prefer.
+#
+# Set DOOM_HOST to the address or domain you will use to reach the site so
+# the generated certificate matches it, e.g. in a .env file next to this
+# file:  DOOM_HOST=192.168.1.50   (or DOOM_HOST=doom.example.com)
+
+services:
+  wasmdoom:
+    build: .
+    image: wasmdoom:latest
+    container_name: wasmdoom
+    ports:
+      - "18749:443" # the site; pick any free high port on the left
+    environment:
+      DOOM_HOST: ${DOOM_HOST:-localhost}
+    volumes:
+      # Keeps the self-signed certificate across container recreation.
+      - wasmdoom-certs:/srv/certs
+      # Replace the bundled shareware episode with your own IWAD by pointing
+      # this at a local file, e.g.:
+      # - /home/you/doom.wad:/srv/wasmdoom/assets/doom1.wad
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsk", "https://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  wasmdoom-certs:
